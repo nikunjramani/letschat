@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:letschat/helper/HelperFunction.dart';
+import 'package:letschat/view/setProfileInfo.dart';
 import 'home.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
@@ -60,10 +63,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       verificationId: _verificationCode, smsCode: pin))
                       .then((value) async {
                     if (value.user != null) {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => Home()),
-                              (route) => false);
+                      checkUser();
                     }
                   });
                 } catch (e) {
@@ -78,6 +78,31 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
     );
   }
+  checkUser() async {
+    Firestore.instance.collection("User")
+        .where("number",isEqualTo:FirebaseAuth.instance.currentUser.phoneNumber)
+        .get().then((QuerySnapshot snapshot) => {
+      snapshot.docs.forEach((element) {
+        if(element["number"]==FirebaseAuth.instance.currentUser.phoneNumber){
+          HelperFunction.saveUserAboutSharedPreference(element["aboutme"]);
+          HelperFunction.saveUserNameSharedPreference(element["name"]);
+          HelperFunction.saveUserNumberSharedPreference(FirebaseAuth.instance.currentUser.phoneNumber);
+          HelperFunction.saveUserImageSharedPreference(element["image"]);
+          HelperFunction.saveUserDobSharedPreference(element["dob"]);
+          HelperFunction.saveUserLoginSharedPreference(true);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => Home()),
+                  (route) => false);
+        }else{
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => SetProfileInfo()),
+                  (route) => false);
+        }
+      })
+    });
+  }
 
   _verifyPhone() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
@@ -89,7 +114,7 @@ class _OTPScreenState extends State<OTPScreen> {
             if (value.user != null) {
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => Home()),
+                  MaterialPageRoute(builder: (context) => SetProfileInfo()),
                       (route) => false);
             }
           });
