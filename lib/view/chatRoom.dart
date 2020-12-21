@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,6 +26,7 @@ class _ChatRoomState extends State<ChatRoom> {
   bool dialVisible = true;
   FirebaseStorage _storage = FirebaseStorage.instance;
   bool isLoading;
+  final GlobalKey _menuKey = new GlobalKey();
 
   // Widget buildLoading() {
   //   return Positioned(
@@ -145,60 +147,66 @@ class _ChatRoomState extends State<ChatRoom> {
                       ),
                       controller: messageController,
                     )),
-                    GestureDetector(
-                      onTap:()=>uploadImage(),
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [
-                                  const Color(0x36FFFFFF),
-                                  const Color(0x0FFFFFFF),
-                                ]
-                            ),
-                            borderRadius: BorderRadius.circular(40)
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: Icon(Icons.camera_alt_outlined),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap:()=>uploadVideo(),
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [
-                                  const Color(0x36FFFFFF),
-                                  const Color(0x0FFFFFFF),
-                                ]
-                            ),
-                            borderRadius: BorderRadius.circular(40)
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: Icon(Icons.videocam_outlined),
-                      ),
-                    ),
-                    // GestureDetector(
-                    //   onTap:()=>uploadAudio(),
-                    //   child: Container(
-                    //     height: 40,
-                    //     width: 40,
-                    //     decoration: BoxDecoration(
-                    //         gradient: LinearGradient(
-                    //             colors: [
-                    //               const Color(0x36FFFFFF),
-                    //               const Color(0x0FFFFFFF),
-                    //             ]
-                    //         ),
-                    //         borderRadius: BorderRadius.circular(40)
-                    //     ),
-                    //     padding: EdgeInsets.all(12),
-                    //     child: Icon(Icons.audiotrack_outlined),
-                    //   ),
-                    // ),
+                     IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (builder) {
+                                return new Container(
+                                  height: 200.0,
+                                  color: Color(0xFF737373),
+                                  child: new Container(
+                                      decoration: new BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: new BorderRadius.only(
+                                              topLeft: const Radius.circular(10.0), topRight: const Radius.circular(10.0))),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap:()=> uploadImage(),
+                                                child: Container(
+                                                  height: 60,
+                                                  width: 60,
+                                                  decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                          colors: [
+                                                            const Color(0xff007EF4),
+                                                            const Color(0xff2A75BC),
+                                                          ]
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(10)
+                                                  ),
+                                                  child: Icon(Icons.image,color: Colors.white,size: 40,),
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap:()=> uploadVideo(),
+                                                child: Container(
+                                                  height: 60,
+                                                  width: 60,
+                                                  decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                          colors: [
+                                                            const Color(0xff007EF4),
+                                                            const Color(0xff2A75BC),
+                                                          ]
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(10)
+                                                  ),
+                                                  child: Icon(Icons.videocam_outlined,color: Colors.white,size: 40,),
+                                                ),
+                                              ),
+
+                                            ],
+                                          )
+                                        ],
+                                      )),
+                                );
+                              });
+                        }),
                     GestureDetector(
                       onTap:()=> sendMessage("message",messageController.text),
                       child: Container(
