@@ -50,6 +50,7 @@ class _SetProfileInfoState extends State<SetProfileInfo> {
       HelperFunction.saveUserNameSharedPreference(name.text);
       HelperFunction.saveUserNumberSharedPreference(FirebaseAuth.instance.currentUser.phoneNumber);
       HelperFunction.saveUserImageSharedPreference(profileImage);
+      HelperFunction.saveUserDobSharedPreference(dob);
       HelperFunction.saveUserLoginSharedPreference(true);
     DataBaseMethods.uploadUserInfo(map);
     Navigator.push(context, MaterialPageRoute(

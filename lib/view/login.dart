@@ -12,7 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Phone Auth'),
+        title: Text('Login'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

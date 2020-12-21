@@ -83,6 +83,8 @@ class _OTPScreenState extends State<OTPScreen> {
         .where("number",isEqualTo:FirebaseAuth.instance.currentUser.phoneNumber)
         .get().then((QuerySnapshot snapshot) => {
       snapshot.docs.forEach((element) {
+        print(FirebaseAuth.instance.currentUser.phoneNumber);
+        print("work");
         if(element["number"]==FirebaseAuth.instance.currentUser.phoneNumber){
           HelperFunction.saveUserAboutSharedPreference(element["aboutme"]);
           HelperFunction.saveUserNameSharedPreference(element["name"]);
@@ -95,6 +97,7 @@ class _OTPScreenState extends State<OTPScreen> {
               MaterialPageRoute(builder: (context) => Home()),
                   (route) => false);
         }else{
+          print("dontWork");
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => SetProfileInfo()),
@@ -112,10 +115,7 @@ class _OTPScreenState extends State<OTPScreen> {
               .signInWithCredential(credential)
               .then((value) async {
             if (value.user != null) {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => SetProfileInfo()),
-                      (route) => false);
+              checkUser();
             }
           });
         },

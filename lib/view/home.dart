@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:letschat/helper/Constants.dart';
 import 'package:letschat/helper/HelperFunction.dart';
+import 'package:letschat/main.dart';
 import 'package:letschat/services/DataBaseMethod.dart';
 import 'package:letschat/view/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,9 +23,8 @@ class _HomeState extends State<Home> {
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DataBaseMethods dataBaseMethods=new DataBaseMethods();
-  QuerySnapshot UserList;
-
   Stream chatRoomStream;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   Widget chatRoomList(){
     return StreamBuilder(
@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
         builder: (context,snapshop){
           return snapshop.hasData?ListView.builder(
               itemCount: snapshop.data.documents.length,
+              shrinkWrap: true,
               itemBuilder: (context,index){
                 return ChatRoomTile(
                     snapshop.data.documents[index].get("chatroomId")
@@ -43,38 +44,28 @@ class _HomeState extends State<Home> {
         }
     );
   }
-
-  AppBar buildAppBar(BuildContext context) {
-    return new AppBar(
-        title: new Text('LetsChat'),
-        actions: [
-          searchBar.getSearchAction(context),
-        ]
+  Widget AppbarBuild(){
+    return AppBar(
+      title: Text("Letschat"),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.search,
+          ),
+          onPressed: () {
+            showSearch(
+              context: context,
+              delegate: CustomSearchDelegate(),
+            );
+          },
+        ),
+      ],
     );
   }
-
- void onSubmitted(String value) {
-    if(value!=null) {
-      DataBaseMethods.GetUserByName(value).then((val) {
-        setState(() {
-          UserList = val;
-        });
-      });
-    }
-  }
-  Widget SearchList(){
-    return UserList!=null ? ListView.builder(
-        itemCount: UserList.documents.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return SearchUserList(
-            name: UserList.documents[index].get("name"),
-            number: UserList.documents[index].get("number"),
-            image: UserList.documents[index].get("image"),
-          );
-        },
-      ):Container();
-      print(UserList);
+  signOut() async {
+    await auth.signOut();
+    await HelperFunction.saveUserLoginSharedPreference(false);
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>new MyApp()));
   }
 
   @override
@@ -84,12 +75,11 @@ class _HomeState extends State<Home> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: searchBar.build(context),
+        appBar: AppbarBuild(),
         key: _scaffoldKey,
         body: Container(
           child:Column(
             children: [
-              SearchList(),
               chatRoomList()
             ],
           ),
@@ -115,13 +105,10 @@ class _HomeState extends State<Home> {
             },
             children: <Widget>[
               RawMaterialButton(
-                onPressed: () {
-                  fabKey.currentState.close();
-
-                },
+                onPressed: signOut,
                 shape: CircleBorder(),
                 padding: const EdgeInsets.all(24.0),
-                child: Icon(Icons.settings, color: Colors.lightBlueAccent),
+                child: Icon(Icons.logout, color: Colors.lightBlueAccent),
               ),
               RawMaterialButton(
                 onPressed: () {
@@ -154,20 +141,10 @@ class _HomeState extends State<Home> {
     super.initState();
     getUserInfo();
     // Constants.MyName=HelperFunction.getUserNameSharedPreference();
-    searchBar = new SearchBar(
-        inBar: false,
-        setState: setState,
-        onChanged: onSubmitted,
-        buildDefaultAppBar: buildAppBar,
-        onCleared: () {print("cleared");},
-        onClosed: () {}
-        );
-
-
   }
 
   getData() async{
-    DataBaseMethods.getChatRooms(Constants.MyName).then((value){
+    await DataBaseMethods.getChatRooms(Constants.MyName).then((value){
       setState(() {
         chatRoomStream=value;
       });
@@ -180,7 +157,106 @@ class _HomeState extends State<Home> {
     Constants.MyDob=await HelperFunction.getUserDobSharedPreference();
     Constants.MyImage=await HelperFunction.getUserImageSharedPreference();
     Constants.MyAvoutMe=await HelperFunction.getUserAboutSharedPreference();
-    print(Constants.MyName);
+    getData();
+  }
+}
+
+class ChatRoomTile extends StatelessWidget {
+  final String username,chatRoom;
+  ChatRoomTile(this.username, this.chatRoom);
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatRoom,username)));
+      },
+      child: Card(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                height: 40,
+                width: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(48),
+                ),
+                child: Text("${username.substring(0,1).toUpperCase()}"),
+              ),
+              SizedBox(width: 8,),
+              Text(username,style: TextStyle(
+                  fontSize: 17
+              ))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class CustomSearchDelegate extends SearchDelegate {
+
+  QuerySnapshot userList;
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    print(query);
+
+    DataBaseMethods.GetUserByName(query).then((val) {
+      userList=val;
+    });
+
+    if(userList!=null){
+      return Container(
+          child: ListView.builder(
+            itemCount: userList.documents.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return SearchUserList(
+                name: userList.documents[index].get("name"),
+                number: userList.documents[index].get("number"),
+                image: userList.documents[index].get("image"),
+              );
+            },
+          )
+      );
+    }else{
+      return Container();
+    }
+
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // This method is called everytime the search term changes.
+    // If you want to add search suggestions as the user enters their search term, this is the place to do that.
+
   }
 }
 
@@ -192,40 +268,44 @@ class SearchUserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap:(){
-          print(Constants.MyName);
-          chatRoomId=getChatRoomId(name,Constants.MyName);
-          List<String> user=[name,Constants.MyName];
+      onTap:(){
+        print(Constants.MyName);
+        chatRoomId=getChatRoomId(name,Constants.MyName);
+        List<String> user=[name,Constants.MyName];
 
-          Map<String,dynamic> chatRoomMap=new Map();
-          chatRoomMap['users']=user;
-          chatRoomMap['chatroomId']=chatRoomId;
+        Map<String,dynamic> chatRoomMap=new Map();
+        chatRoomMap['users']=user;
+        chatRoomMap['chatroomId']=chatRoomId;
 
-          DataBaseMethods.createChatRoom(chatRoomId, chatRoomMap);
+        DataBaseMethods.createChatRoom(chatRoomId, chatRoomMap);
 
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatRoom(chatRoomId)));
-        } ,
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatRoom(chatRoomId,name)));
+      } ,
+      child:Card(
         child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(100.0),
                 child: Image.network(
                   image,
-                  width: 50.0,
-                  height: 50.0,
+                  width: 40.0,
+                  height: 40.0,
                   fit: BoxFit.fill,
                 ),
               ),
-              Column(
-                children: [
-                  Text(name),
-                  Text(number)
-                ],
-              ),
+              SizedBox(width: 8,),
+              Text(name,style: TextStyle(
+                  fontSize: 17
+              )),
+              Text(name,style: TextStyle(
+                  fontSize: 17
+              ))
             ],
           ),
         ),
+      ),
     );
   }
 
@@ -236,39 +316,4 @@ class SearchUserList extends StatelessWidget {
       return "$user1\_$user2";
     }
   }
-
 }
-
-class ChatRoomTile extends StatelessWidget {
-  final String username,chatRoom;
-  ChatRoomTile(this.username, this.chatRoom);
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatRoom)));
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
-        child: Row(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(48),
-              ),
-              child: Text("${username.substring(0,1).toUpperCase()}"),
-            ),
-            SizedBox(width: 8,),
-            Text(username)
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-

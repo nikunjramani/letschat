@@ -37,6 +37,10 @@ dependencies:
   firebase_image: ^0.3.0
   shared_preferences: ^0.5.12+4
   image_picker: ^0.6.7+17
+  floating_action_bubble: 1.0.9
+  cached_network_image: ^2.4.1
+  loading: ^1.0.2
+  splashscreen:
 
 
 dev_dependencies:
