@@ -94,29 +94,8 @@ class _ChatRoomState extends State<ChatRoom> {
     );
   }
 
-  uploadImage() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final   pickedFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Image").child(fileName);
-    // isLoading=true;
-    UploadTask uploadTask = reference.putFile(pickedFile);
-    String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
-    if(location!=null) {
-      sendMessage("image", location);
-    }
-  }
 
-  uploadVideo() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final pickedFile = await ImagePicker.pickVideo(source: ImageSource.gallery);
-    Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Video").child(fileName);
-    // isLoading=true;
-    UploadTask uploadTask = reference.putFile(pickedFile);
-    String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
-    if(location!=null) {
-      sendMessage("video", location);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +164,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                                         children: [
                                                           Container(
                                                              child: GestureDetector(
-                                                              onTap:()=> uploadImage(),
+                                                              onTap:uploadImage,
                                                               child: Container(
                                                                 height: 60,
                                                                 width: 60,
@@ -273,7 +252,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                                         children: [
                                                           Container(
                                                             child: GestureDetector(
-                                                              onTap:()=> uploadImage(),
+                                                              onTap:()=> {},
                                                               child: Container(
                                                                 height: 60,
                                                                 width: 60,
@@ -301,7 +280,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                                         children: [
                                                           Container(
                                                             child: GestureDetector(
-                                                              onTap:()=> uploadImage(),
+                                                              onTap:()=> {},
                                                               child: Container(
                                                                 height: 60,
                                                                 width: 60,
@@ -329,7 +308,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                                         children: [
                                                           Container(
                                                             child: GestureDetector(
-                                                              onTap:()=> uploadImage(),
+                                                              onTap:()=> {},
                                                               child: Container(
                                                                 height: 60,
                                                                 width: 60,
@@ -372,25 +351,53 @@ class _ChatRoomState extends State<ChatRoom> {
     );
   }
 
+  void uploadImage() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    //Get the file from the image picker and store it
+    final pickedFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Image").child(fileName);
+    UploadTask uploadTask = reference.putFile(pickedFile);
+    String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
+
+    if(location!=null) {
+      print("work");
+      sendMessage("image", location);
+    }
+  }
+
   void _takePhoto() async {
-    ImagePicker.pickImage(source: ImageSource.camera).then((File recordedImage) {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    ImagePicker.pickImage(source: ImageSource.camera).then((File recordedImage) async {
       if (recordedImage != null && recordedImage.path != null) {
-        setState(() {
-        });
-        GallerySaver.saveImage(recordedImage.path).then((path) {
-          setState(() {
-          });
-        });
+        Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Image").child(fileName);
+        UploadTask uploadTask = reference.putFile(recordedImage);
+        String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
+        if(location!=null) {
+            sendMessage("image", location);
+        }
+        // GallerySaver.saveImage(recordedImage.path).then((path) {
+        //   setState(() {
+        //   });
+        // });
       }
     });
   }
-
   void _recordVideo() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     ImagePicker.pickVideo(source: ImageSource.camera)
-        .then((File recordedVideo) {
+        .then((File recordedVideo) async {
       if (recordedVideo != null && recordedVideo.path != null) {
-        setState(() {
-        });
+        Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Video").child(fileName);
+        // isLoading=true;
+        UploadTask uploadTask = reference.putFile(recordedVideo);
+        String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
+        if(location!=null) {
+          setState(() {
+            sendMessage("video", location);
+          });
+        }
+
         GallerySaver.saveVideo(recordedVideo.path).then((path) {
           setState(() {
           });
@@ -398,7 +405,6 @@ class _ChatRoomState extends State<ChatRoom> {
       }
     });
   }
-
   getChat() async{
     // isLoading=true;
     await DataBaseMethods.getConversationMessage(widget.ChatRoomId).then((value){
