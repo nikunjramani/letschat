@@ -42,6 +42,14 @@ dependencies:
   loading: ^1.0.2
   splashscreen:
   adaptive_action_sheet: ^1.0.9
+  camera:
+  path_provider:
+  path:
+  esys_flutter_share: ^1.0.2
+  cupertino_icons: ^0.1.3
+  gallery_saver: ^2.0.1
+
+
 
 
 
