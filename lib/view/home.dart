@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:letschat/helper/Constants.dart';
@@ -25,7 +30,8 @@ class _HomeState extends State<Home> {
   DataBaseMethods dataBaseMethods=new DataBaseMethods();
   Stream chatRoomStream;
   FirebaseAuth auth = FirebaseAuth.instance;
-
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   Widget chatRoomList(){
     return StreamBuilder(
       stream: chatRoomStream,
@@ -71,7 +77,6 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -140,7 +145,45 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     getUserInfo();
+    initiNotification();
+
     // Constants.MyName=HelperFunction.getUserNameSharedPreference();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        setState(() {
+        });
+        createNotification(message);
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        setState(() {
+        });
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        setState(() {
+        });
+        print("onResume: $message");
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: true,
+            badge: true,
+            alert: true
+        )
+    );
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      setState(() {
+        Constants.Token=token;
+        print(token);
+      });
+    });
   }
 
   getData() async{
@@ -159,6 +202,53 @@ class _HomeState extends State<Home> {
     Constants.MyAvoutMe=await HelperFunction.getUserAboutSharedPreference();
     getData();
   }
+
+  Future<void> initiNotification() async {
+    flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings("userprofile");
+    final IOSInitializationSettings initializationSettingsIOS =
+    IOSInitializationSettings(
+        onDidReceiveLocalNotification: null);
+    final MacOSInitializationSettings initializationSettingsMacOS =
+    MacOSInitializationSettings();
+    final InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+        macOS: initializationSettingsMacOS);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: selectNotification);
+    await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+  }
+
+  Future selectNotification(String payload) async {
+    if (payload !=null) {
+      debugPrint('notification payload: $payload');
+      print(payload);
+      var parts = payload.split(',');
+      var chatId = parts[0].trim();
+      var username = parts.sublist(1).join(':').trim();
+
+      Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatId,username)));
+    }
+  }
+
+  void createNotification(Map<String, dynamic> message) async{
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+        'your channel id', 'your channel name', 'your channel description',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, message["notification"]["title"], message["notification"]["body"], platformChannelSpecifics,
+        payload: message["data"]["click_action"]);
+  }
+
 }
 
 class ChatRoomTile extends StatelessWidget {
@@ -248,6 +338,7 @@ class CustomSearchDelegate extends SearchDelegate {
                 name: userList.documents[index].get("name"),
                 number: userList.documents[index].get("number"),
                 image: userList.documents[index].get("image"),
+                token: userList.documents[index].get("usertoken"),
               );
             },
           )
@@ -267,20 +358,32 @@ class CustomSearchDelegate extends SearchDelegate {
 }
 
 class SearchUserList extends StatelessWidget {
-  String name,number,image;
+  String name,number,image,token;
   String chatRoomId;
-  SearchUserList({this.name,this.number,this.image});
+  SearchUserList({this.name,this.number,this.image,this.token});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap:(){
-        print(Constants.MyName);
         chatRoomId=getChatRoomId(name,Constants.MyName);
         List<String> user=[name,Constants.MyName];
+        var parts = chatRoomId.split('_');
+        var user1 = parts[0].trim();
+        var user2 = parts.sublist(1).join(':').trim();
+
+        List<String> userToken=new List();
+        if(user1!=Constants.MyName){
+          userToken=[token,Constants.Token];
+        }else{
+          userToken=[FirebaseMessaging().getToken().toString(),token];
+        }
+
+        // List<String> userToken=[FirebaseMessaging().getToken().toString(),FirebaseMessaging().getToken().toString()];
 
         Map<String,dynamic> chatRoomMap=new Map();
         chatRoomMap['users']=user;
+        chatRoomMap["userToken"]=userToken;
         chatRoomMap['chatroomId']=chatRoomId;
 
         DataBaseMethods.createChatRoom(chatRoomId, chatRoomMap);

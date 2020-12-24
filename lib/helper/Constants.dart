@@ -5,4 +5,7 @@ class Constants{
   static String MyImage="";
   static String MyDob="";
 
+  static String ServerToken="AAAA6NYA6DM:APA91bFxJwQdOLNvxV0a4jU2YwRiol6yWirfRCXGY-TNaUs0ZejtAlbmYw1ewVDxdONPx8T8YNIrrfPimyoI2Ez7N4C8ph2AQ76pCnOyR81NVguWFU9TgQBvnQ3f3sPHm95EPdszbaqq";
+  static String Token="";
+
 }

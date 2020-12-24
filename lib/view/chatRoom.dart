@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -7,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:letschat/helper/Constants.dart';
 import 'package:letschat/services/DataBaseMethod.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class ChatRoom extends StatefulWidget {
   final String ChatRoomId,name;
@@ -23,6 +28,7 @@ class _ChatRoomState extends State<ChatRoom> {
   FirebaseStorage _storage = FirebaseStorage.instance;
   bool isLoading;
   final GlobalKey _menuKey = new GlobalKey();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   // Widget buildLoading() {
   //   return Positioned(
@@ -53,7 +59,7 @@ class _ChatRoomState extends State<ChatRoom> {
     );
   }
 
-  void sendMessage(String type,String content){
+  Future<void> sendMessage(String type,String content) async {
     if(content.isNotEmpty & content.trim().isNotEmpty){
       Map<String,dynamic> messageMap=new Map();
       messageMap["message"]=content;
@@ -62,8 +68,40 @@ class _ChatRoomState extends State<ChatRoom> {
       messageMap["time"]=DateTime.now().millisecondsSinceEpoch;
       DataBaseMethods.sendConversationMessage(widget.ChatRoomId, messageMap);
       messageController.text="";
+      String sendToken=await DataBaseMethods.getUserToken(Constants.Token);
+      print(sendToken);
+      sendAndRetrieveMessage(Constants.MyName, content,sendToken);
       // isLoading=false;
     }
+  }
+
+  Future<Map<String, dynamic>> sendAndRetrieveMessage(String title,String message,String token) async {
+    await _firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(sound: true, badge: true, alert: true, provisional: false),
+    );
+
+    await http.post(
+      'https://fcm.googleapis.com/fcm/send',
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key='+Constants.ServerToken,
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': '$message',
+            'title': '$title'
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': ''+widget.ChatRoomId+","+widget.name,
+            'id': '1',
+            'status': 'done'
+          },
+          'to': token,
+        },
+      ),
+    );
   }
 
   @override
@@ -308,7 +346,8 @@ class _ChatRoomState extends State<ChatRoom> {
                                                         children: [
                                                           Container(
                                                             child: GestureDetector(
-                                                              onTap:()=> {},
+                                                              onTap:()=> {
+                                                              },
                                                               child: Container(
                                                                 height: 60,
                                                                 width: 60,

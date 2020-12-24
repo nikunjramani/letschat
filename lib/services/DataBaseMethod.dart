@@ -42,4 +42,21 @@ class DataBaseMethods{
         .snapshots();
   }
 
+  static getUserToken(String token) async {
+    var querySnap= await Firestore.instance
+        .collection("ChatRoom")
+        .where("userToken",arrayContains: token)
+        .get();
+
+    List userToken=querySnap.documents
+        .map((snap) => snap.get("userToken"))
+        .toList();
+
+    if(userToken[0][0]==token){
+      return userToken[0][1];
+    }else{
+      return userToken[0][0];
+    }
+  }
+
 }
