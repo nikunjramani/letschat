@@ -12,7 +12,9 @@ import 'package:letschat/helper/Constants.dart';
 import 'package:letschat/helper/HelperFunction.dart';
 import 'package:letschat/main.dart';
 import 'package:letschat/services/DataBaseMethod.dart';
+import 'package:letschat/view/login.dart';
 import 'package:letschat/view/profile.dart';
+import 'package:letschat/view/viewContact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chatRoom.dart';
@@ -71,7 +73,7 @@ class _HomeState extends State<Home> {
   signOut() async {
     await auth.signOut();
     await HelperFunction.saveUserLoginSharedPreference(false);
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>new MyApp()));
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>new LoginScreen()));
   }
 
   @override
@@ -127,6 +129,7 @@ class _HomeState extends State<Home> {
               RawMaterialButton(
                 onPressed: () {
                   fabKey.currentState.close();
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewContact()));
                 },
                 shape: CircleBorder(),
                 padding: const EdgeInsets.all(24.0),
@@ -323,7 +326,6 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     print(query);
-
     DataBaseMethods.GetUserByName(query).then((val) {
       userList=val;
     });
@@ -346,14 +348,12 @@ class CustomSearchDelegate extends SearchDelegate {
     }else{
       return Container();
     }
-
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     // This method is called everytime the search term changes.
     // If you want to add search suggestions as the user enters their search term, this is the place to do that.
-
   }
 }
 

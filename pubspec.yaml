@@ -46,6 +46,8 @@ dependencies:
   gallery_saver: ^2.0.1
   firebase_messaging: ^7.0.3
   flutter_local_notifications: ^3.0.2
+  image: ^2.1.19
+  contacts_service: ^0.4.6
 
 
 dev_dependencies:

@@ -8,6 +8,8 @@ class HelperFunction{
   static String sharedPreferenceUserNumber="USERNUMBER";
   static String sharedPreferenceUserAbout="USERABOUT";
   static String sharedPreferenceUserImage="USERIMAGE";
+  static String sharedPreferenceUserToken="USERTOKEN";
+
 
   static Future<void> saveUserLoginSharedPreference( bool isUserLogIn) async{
     SharedPreferences preferences=await SharedPreferences.getInstance();
@@ -40,6 +42,12 @@ class HelperFunction{
     return await preferences.setString(sharedPreferenceUserImage, image);
   }
 
+  static Future<void> saveUserTokenSharedPreference(String token) async{
+    SharedPreferences preferences=await SharedPreferences.getInstance();
+    Constants.Token=token;
+    return await preferences.setString(sharedPreferenceUserToken, token);
+  }
+
   static Future<bool> getUserLoginSharedPreference() async {
     SharedPreferences preferences=await SharedPreferences.getInstance();
     return preferences.getBool(sharedPreferenceUserLogInKey);
@@ -65,5 +73,10 @@ class HelperFunction{
   static Future<String> getUserDobSharedPreference() async {
     SharedPreferences preferences=await SharedPreferences.getInstance();
     return preferences.getString(sharedPreferenceUserDob);
+  }
+
+  static Future<String> getUserTokenSharedPreference() async {
+    SharedPreferences preferences=await SharedPreferences.getInstance();
+    return preferences.getString(sharedPreferenceUserToken);
   }
 }

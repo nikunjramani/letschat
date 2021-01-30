@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -37,13 +38,14 @@ class _SetProfileInfoState extends State<SetProfileInfo> {
       });
   }
 
-   AddUserInfo(){
+   AddUserInfo() async {
       Map<String,dynamic> map=new Map();
       map['name']=name.text;
       map['aboutme']=aboutme.text;
       map['dob']=dob;
       map['number']=FirebaseAuth.instance.currentUser.phoneNumber;
       map['image']=profileImage;
+      map['usertoken']=await FirebaseMessaging().getToken();
 
       Constants.MyName=name.text;
       HelperFunction.saveUserAboutSharedPreference(aboutme.text);
@@ -51,6 +53,7 @@ class _SetProfileInfoState extends State<SetProfileInfo> {
       HelperFunction.saveUserNumberSharedPreference(FirebaseAuth.instance.currentUser.phoneNumber);
       HelperFunction.saveUserImageSharedPreference(profileImage);
       HelperFunction.saveUserDobSharedPreference(dob);
+      HelperFunction.saveUserTokenSharedPreference(await FirebaseMessaging().getToken());
       HelperFunction.saveUserLoginSharedPreference(true);
     DataBaseMethods.uploadUserInfo(map);
     Navigator.push(context, MaterialPageRoute(

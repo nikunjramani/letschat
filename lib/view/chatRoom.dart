@@ -12,6 +12,7 @@ import 'package:letschat/helper/Constants.dart';
 import 'package:letschat/services/DataBaseMethod.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:letschat/view/viewImageBeforeUpload.dart';
 
 class ChatRoom extends StatefulWidget {
   final String ChatRoomId,name;
@@ -29,6 +30,7 @@ class _ChatRoomState extends State<ChatRoom> {
   bool isLoading;
   final GlobalKey _menuKey = new GlobalKey();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  ScrollController _myController = ScrollController();
 
   // Widget buildLoading() {
   //   return Positioned(
@@ -42,20 +44,24 @@ class _ChatRoomState extends State<ChatRoom> {
   // }
 
   Widget ChatMessageList(){
-    return StreamBuilder(
-      stream: chatMessageStream,
-        builder: (context, snapshot){
-          return snapshot.data != null ? ListView.builder(
-            itemCount: snapshot.data.documents.length,
-              itemBuilder: (context,index){
-              return MessageTile(
-                  snapshot.data.documents[index].get("message"),
-                  snapshot.data.documents[index].get("sendBy")== Constants.MyName,
-                  snapshot.data.documents[index].get("type"),
-                );
-              }
-          ):Container();
-        }
+    return Container(
+      margin: EdgeInsets.only(bottom: 55),
+      child: StreamBuilder(
+        stream: chatMessageStream,
+          builder: (context, snapshot){
+            return snapshot.data != null ? ListView.builder(
+              itemCount: snapshot.data.documents.length,
+                controller: _myController,
+                itemBuilder: (context,index){
+                  return MessageTile(
+                      snapshot.data.documents[index].get("message"),
+                      snapshot.data.documents[index].get("sendBy")== Constants.MyName,
+                      snapshot.data.documents[index].get("type"),
+                    );
+                }
+            ):Container();
+          }
+      ),
     );
   }
 
@@ -137,6 +143,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   Widget build(BuildContext context) {
+    Timer(Duration(milliseconds: 500), () => _myController.jumpTo(_myController.position.maxScrollExtent));
     return MaterialApp(
       home: new Scaffold(
         appBar: AppbarBuild(),
@@ -180,6 +187,7 @@ class _ChatRoomState extends State<ChatRoom> {
                             onPressed: () {
                               showModalBottomSheet(
                                   context: context,
+                                  isDismissible: true,
                                   builder: (builder) {
                                     return new Container(
                                       padding: EdgeInsets.all(5),
@@ -391,18 +399,9 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
   void uploadImage() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-
     //Get the file from the image picker and store it
     final pickedFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    Reference reference = _storage.ref().child("UserShareMedia").child(FirebaseAuth.instance.currentUser.uid).child("Image").child(fileName);
-    UploadTask uploadTask = reference.putFile(pickedFile);
-    String location = await uploadTask.then((ress) => ress.ref.getDownloadURL());
-
-    if(location!=null) {
-      print("work");
-      sendMessage("image", location);
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>UploadImage(pickedFile, widget.ChatRoomId, widget.name)));
   }
 
   void _takePhoto() async {
