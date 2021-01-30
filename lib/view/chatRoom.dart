@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker/emoji_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -23,6 +24,8 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   bool type=false;
+  bool isShowSticker;
+  bool isKeyboardVisible = false;
   TextEditingController messageController=new TextEditingController();
   Stream chatMessageStream;
   bool dialVisible = true;
@@ -31,6 +34,7 @@ class _ChatRoomState extends State<ChatRoom> {
   final GlobalKey _menuKey = new GlobalKey();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   ScrollController _myController = ScrollController();
+  FocusNode textFieldFocus = FocusNode();
 
   // Widget buildLoading() {
   //   return Positioned(
@@ -114,6 +118,7 @@ class _ChatRoomState extends State<ChatRoom> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    isShowSticker = false;
     // isLoading=false;
     getChat();
   }
@@ -139,262 +144,326 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
 
+  showKeyboard() => textFieldFocus.requestFocus();
 
+  hideKeyboard() => textFieldFocus.unfocus();
+
+  hideEmojiContainer() {
+    setState(() {
+      isShowSticker = false;
+    });
+  }
+
+  showEmojiContainer() {
+    setState(() {
+      isShowSticker = true;
+    });
+  }
+
+
+  Future<bool> onBackPress() {
+    if (isShowSticker) {
+      setState(() {
+        isShowSticker = false;
+      });
+    } else {
+      Navigator.pop(context);
+    }
+
+    return Future.value(false);
+  }
+  Widget buildSticker() {
+    return EmojiPicker(
+      rows: 4,
+      columns: 7,
+      buttonMode: ButtonMode.MATERIAL,
+      recommendKeywords: ["face", "happy", "party", "sad"],
+      numRecommended: 50,
+      onEmojiSelected: (emoji, category) {
+        print(emoji);
+        messageController.text=messageController.text+emoji.emoji;
+
+      },
+    );
+  }
+  Widget buildInput(){
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          Container(
+            height: 50,
+            width: MediaQuery.of(context).size.width-65,
+            margin: EdgeInsets.symmetric(vertical: 3,horizontal: 5),
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.white
+                  ],
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(30))
+            ),
+            child: new Row(
+              children: [
+                IconButton(
+                    icon: Icon(Icons.emoji_emotions_sharp),
+                    onPressed: () {
+                      setState(() {
+                        if (!isShowSticker) {
+                          hideKeyboard();
+                          showEmojiContainer();
+                        } else {
+                          showKeyboard();
+                          hideEmojiContainer();
+                        }
+                      });
+                    },
+                ),
+                Expanded(child: TextField(
+                  focusNode: textFieldFocus,
+                  style: TextStyle(color: Colors.black54),
+                  decoration: InputDecoration(
+                      hintStyle: TextStyle(color: Colors.black54),
+                      hintText: "Enter Message",
+                      border: InputBorder.none
+                  ),
+                  controller: messageController,
+                )),
+                IconButton(
+                    icon: Icon(
+                      Icons.attachment_outlined,
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context,
+                          isDismissible: true,
+                          builder: (builder) {
+                            return new Container(
+                              padding: EdgeInsets.all(5),
+                              height: 250.0,
+                              color: Color(0xFF737373),
+                              child: new Container(
+                                  decoration: new BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: new BorderRadius.only(
+                                          topLeft: const Radius.circular(10.0), topRight: const Radius.circular(10.0))),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:uploadImage,
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.image,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Image")
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:_takePhoto,
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.camera_alt_outlined,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Camera")
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:_recordVideo,
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.videocam_outlined,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Video")
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:()=> {},
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.audiotrack_outlined,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Audio")
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:()=> {},
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.file_copy_outlined,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Documents")
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    child: GestureDetector(
+                                                      onTap:()=> {
+                                                      },
+                                                      child: Container(
+                                                        height: 60,
+                                                        width: 60,
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                colors: [
+                                                                  const Color(0xff007EF4),
+                                                                  const Color(0xff2A75BC),
+                                                                ]
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50)
+                                                        ),
+                                                        child: Icon(Icons.person,color: Colors.white,size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Text("Contact")
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                            );
+                          });
+                    }),
+              ],
+            ),
+          ),
+          getSendAndRecordButton(),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     Timer(Duration(milliseconds: 500), () => _myController.jumpTo(_myController.position.maxScrollExtent));
-    return MaterialApp(
-      home: new Scaffold(
+    return Scaffold(
         appBar: AppbarBuild(),
-        body: Stack(
-          children: [
-            // buildLoading(),
-            ChatMessageList(),
-            Container(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                children: [
-                  Container(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width-65,
-                    margin: EdgeInsets.symmetric(vertical: 3,horizontal: 5),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white,
-                            Colors.white
-                          ],
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(30))
-                    ),
-                    child: new Row(
-                      children: [
-                        Expanded(child: TextField(
-                          style: TextStyle(color: Colors.black54),
-                          decoration: InputDecoration(
-                            hintStyle: TextStyle(color: Colors.black54),
-                            hintText: "Enter Message",
-                            border: InputBorder.none
-                          ),
-                          controller: messageController,
-                        )),
-                         IconButton(
-                            icon: Icon(
-                                Icons.attachment_outlined,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                  context: context,
-                                  isDismissible: true,
-                                  builder: (builder) {
-                                    return new Container(
-                                      padding: EdgeInsets.all(5),
-                                      height: 250.0,
-                                      color: Color(0xFF737373),
-                                      child: new Container(
-                                          decoration: new BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: new BorderRadius.only(
-                                                  topLeft: const Radius.circular(10.0), topRight: const Radius.circular(10.0))),
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                             child: GestureDetector(
-                                                              onTap:uploadImage,
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.image,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Image")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            child: GestureDetector(
-                                                              onTap:_takePhoto,
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.camera_alt_outlined,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Camera")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            child: GestureDetector(
-                                                              onTap:_recordVideo,
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.videocam_outlined,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Video")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            child: GestureDetector(
-                                                              onTap:()=> {},
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.audiotrack_outlined,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Audio")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            child: GestureDetector(
-                                                              onTap:()=> {},
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.file_copy_outlined,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Documents")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      padding:EdgeInsets.symmetric(horizontal: 23,vertical: 12),
-                                                      child: Column(
-                                                        children: [
-                                                          Container(
-                                                            child: GestureDetector(
-                                                              onTap:()=> {
-                                                              },
-                                                              child: Container(
-                                                                height: 60,
-                                                                width: 60,
-                                                                decoration: BoxDecoration(
-                                                                    gradient: LinearGradient(
-                                                                        colors: [
-                                                                          const Color(0xff007EF4),
-                                                                          const Color(0xff2A75BC),
-                                                                        ]
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(50)
-                                                                ),
-                                                                child: Icon(Icons.person,color: Colors.white,size: 30,),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 10,),
-                                                          Text("Contact")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          )),
-                                    );
-                                  });
-                            }),
-                      ],
-                    ),
-                  ),
-                  getSendAndRecordButton(),
-                ],
+        body: WillPopScope(
+          child: Column(
+            children: <Widget>[
+              // buildLoading(),
+              Expanded(
+                child:ChatMessageList(),
               ),
-            )
-          ],
+              buildInput(),
+              (isShowSticker ? Container(child:buildSticker()) : Container()),
+
+            ],
+          ),
+          onWillPop: onBackPress,
         ),
-      ),
     );
   }
 

@@ -48,6 +48,12 @@ dependencies:
   flutter_local_notifications: ^3.0.2
   image: ^2.1.19
   contacts_service: ^0.4.6
+  file_picker: ^1.4.0+1
+  emoji_picker: ^0.1.0
+  video_player: ^0.10.2+1
+  flutter_downloader: ^1.2.2
+  downloads_path_provider: ^0.1.0
+  flushbar: ^1.9.0
 
 
 dev_dependencies:
