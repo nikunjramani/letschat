@@ -1,4 +1,4 @@
-import 'package:letschat/helper/Constants.dart';
+import 'package:letschat/constant/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HelperFunction{

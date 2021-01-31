@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/helper/HelperFunction.dart';
-import 'package:letschat/view/setProfileInfo.dart';
+import 'package:letschat/data/sharedprefe/shared_preference.dart';
+import 'package:letschat/ui/setProfileInfo.dart';
 import 'home.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
@@ -19,10 +19,10 @@ class _OTPScreenState extends State<OTPScreen> {
   final TextEditingController _pinPutController = TextEditingController();
   final FocusNode _pinPutFocusNode = FocusNode();
   final BoxDecoration pinPutDecoration = BoxDecoration(
-    color: const Color.fromRGBO(43, 46, 66, 1),
+    color: Colors.white,
     borderRadius: BorderRadius.circular(10.0),
     border: Border.all(
-      color: const Color.fromRGBO(126, 203, 224, 1),
+      color: Colors.black54,
     ),
   );
   @override
@@ -47,7 +47,7 @@ class _OTPScreenState extends State<OTPScreen> {
             padding: const EdgeInsets.all(30.0),
             child: PinPut(
               fieldsCount: 6,
-              textStyle: const TextStyle(fontSize: 25.0, color: Colors.white),
+              textStyle: const TextStyle(fontSize: 25.0, color: Colors.black),
               eachFieldWidth: 40.0,
               eachFieldHeight: 55.0,
               focusNode: _pinPutFocusNode,

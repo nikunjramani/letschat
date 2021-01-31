@@ -5,9 +5,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/helper/Constants.dart';
-import 'package:letschat/helper/HelperFunction.dart';
-import 'package:letschat/services/DataBaseMethod.dart';
+import 'package:letschat/constant/Constants.dart';
+import 'package:letschat/data/sharedprefe/shared_preference.dart';
+import 'package:letschat/data/firestore/DataBaseMethod.dart';
 
 import 'home.dart';
 class SetProfileInfo extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker/emoji_picker.dart';
@@ -9,11 +10,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/helper/Constants.dart';
-import 'package:letschat/services/DataBaseMethod.dart';
+import 'package:letschat/constant/Constants.dart';
+import 'package:letschat/model/messagetile.dart';
+import 'package:letschat/data/firestore/DataBaseMethod.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:letschat/view/viewImageBeforeUpload.dart';
+import 'package:letschat/utils/notification.dart';
+import 'package:letschat/ui/viewImageBeforeUpload.dart';
 
 class ChatRoom extends StatefulWidget {
   final String ChatRoomId,name;
@@ -49,7 +52,6 @@ class _ChatRoomState extends State<ChatRoom> {
 
   Widget ChatMessageList(){
     return Container(
-      margin: EdgeInsets.only(bottom: 55),
       child: StreamBuilder(
         stream: chatMessageStream,
           builder: (context, snapshot){
@@ -80,38 +82,9 @@ class _ChatRoomState extends State<ChatRoom> {
       messageController.text="";
       String sendToken=await DataBaseMethods.getUserToken(Constants.Token);
       print(sendToken);
-      sendAndRetrieveMessage(Constants.MyName, content,sendToken);
+      sendAndRetrieveMessage(Constants.MyName, content,sendToken,widget.name,widget.ChatRoomId);
       // isLoading=false;
     }
-  }
-
-  Future<Map<String, dynamic>> sendAndRetrieveMessage(String title,String message,String token) async {
-    await _firebaseMessaging.requestNotificationPermissions(
-      const IosNotificationSettings(sound: true, badge: true, alert: true, provisional: false),
-    );
-
-    await http.post(
-      'https://fcm.googleapis.com/fcm/send',
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'key='+Constants.ServerToken,
-      },
-      body: jsonEncode(
-        <String, dynamic>{
-          'notification': <String, dynamic>{
-            'body': '$message',
-            'title': '$title'
-          },
-          'priority': 'high',
-          'data': <String, dynamic>{
-            'click_action': ''+widget.ChatRoomId+","+widget.name,
-            'id': '1',
-            'status': 'done'
-          },
-          'to': token,
-        },
-      ),
-    );
   }
 
   @override
@@ -169,24 +142,23 @@ class _ChatRoomState extends State<ChatRoom> {
     } else {
       Navigator.pop(context);
     }
-
     return Future.value(false);
   }
+
   Widget buildSticker() {
     return EmojiPicker(
       rows: 4,
       columns: 7,
       buttonMode: ButtonMode.MATERIAL,
-      recommendKeywords: ["face", "happy", "party", "sad"],
+      recommendKeywords: ["face"],
       numRecommended: 50,
       onEmojiSelected: (emoji, category) {
-        print(emoji);
         messageController.text=messageController.text+emoji.emoji;
-
       },
     );
   }
-  Widget buildInput(){
+
+  Widget buildChatController(){
     return Container(
       alignment: Alignment.bottomCenter,
       child: Row(
@@ -230,6 +202,9 @@ class _ChatRoomState extends State<ChatRoom> {
                       border: InputBorder.none
                   ),
                   controller: messageController,
+                  onTap: (){
+                    hideEmojiContainer();
+                  },
                 )),
                 IconButton(
                     icon: Icon(
@@ -457,9 +432,8 @@ class _ChatRoomState extends State<ChatRoom> {
               Expanded(
                 child:ChatMessageList(),
               ),
-              buildInput(),
+              buildChatController(),
               (isShowSticker ? Container(child:buildSticker()) : Container()),
-
             ],
           ),
           onWillPop: onBackPress,
@@ -468,7 +442,6 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
   void uploadImage() async {
-    //Get the file from the image picker and store it
     final pickedFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     Navigator.push(context, MaterialPageRoute(builder: (context)=>UploadImage(pickedFile, widget.ChatRoomId, widget.name)));
   }
@@ -581,89 +554,3 @@ class _ChatRoomState extends State<ChatRoom> {
     }
   }
 }
-
-class MessageTile extends StatelessWidget {
-  final String message,type;
-  final bool isSendByMe;
-  MessageTile(this.message,this.isSendByMe, this.type);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(left: isSendByMe?0:16,right: isSendByMe?16:0),
-      margin: EdgeInsets.symmetric(vertical: 5),
-      width: MediaQuery.of(context).size.width,
-      alignment: isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
-      child:type=="message"? Container(
-        height: 45,
-        padding: EdgeInsets.symmetric(horizontal: 22,vertical: 14),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isSendByMe?[
-              const Color(0xff007EF4),
-              const Color(0xff2A75BC)
-            ]:[
-              const Color(0xff2A75BC),
-              const Color(0xff2A75BC)
-            ],
-          ),
-          borderRadius: isSendByMe?
-              BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-                bottomLeft: Radius.circular(15)
-              ):
-              BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  topRight: Radius.circular(15),
-                  bottomRight: Radius.circular(15)
-              )
-        ),
-        child:Text(message,style: TextStyle(
-          color: Colors.white,
-          fontSize: 16
-        ),)
-      ):Container(
-          padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isSendByMe?[
-                  const Color(0xff007EF4),
-                  const Color(0xff2A75BC)
-                ]:[
-                  const Color(0xff2A75BC),
-                  const Color(0xff2A75BC)
-                ],
-              ),
-              borderRadius: isSendByMe?
-              BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: Radius.circular(10)
-              ):
-              BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomRight: Radius.circular(10)
-              )
-          ),
-          child:CachedNetworkImage(
-            placeholder: (context, url) => Container(
-              child: CircularProgressIndicator(
-                strokeWidth: 2.0,
-                valueColor:
-                AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-              width: 150.0,
-              height: 150.0,
-              padding: EdgeInsets.all(20.0),
-            ),
-            imageUrl: message,
-            width: 150.0,
-            height: 150.0,
-            fit: BoxFit.cover,
-          )
-      )
-    );
-  }
-}
-

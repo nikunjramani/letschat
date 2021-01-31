@@ -6,14 +6,18 @@ AppBar getAppBar(String title){
   );
 }
 
-InputDecoration TextFieldDecoration(String hint){
+InputDecoration TextFieldDecorationLogin(String hint){
   return InputDecoration(
-      labelText: hint,
-      hintStyle: TextStyle(
-          color: Colors.black12
-      ),
-      focusedBorder: UnderlineInputBorder(
-          borderSide:BorderSide(color:  Colors.black26)
-      )
+    labelText: hint,
+    hintStyle: TextStyle(
+        color: Colors.black
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.black54, width: 1.0),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey, width: 1.0),
+    ),
+    prefix: Text('+91'),
   );
 }

@@ -8,13 +8,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
-import 'package:letschat/helper/Constants.dart';
-import 'package:letschat/helper/HelperFunction.dart';
+import 'package:letschat/constant/Constants.dart';
+import 'package:letschat/data/localdatabase/FileFunction.dart';
+import 'package:letschat/data/sharedprefe/shared_preference.dart';
 import 'package:letschat/main.dart';
-import 'package:letschat/services/DataBaseMethod.dart';
-import 'package:letschat/view/login.dart';
-import 'package:letschat/view/profile.dart';
-import 'package:letschat/view/viewContact.dart';
+import 'package:letschat/model/userlist.dart';
+import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/ui/login.dart';
+import 'package:letschat/ui/profile.dart';
+import 'package:letschat/ui/viewContact.dart';
+import 'package:letschat/widget/homewidgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chatRoom.dart';
@@ -31,6 +34,7 @@ class _HomeState extends State<Home> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DataBaseMethods dataBaseMethods=new DataBaseMethods();
   Stream chatRoomStream;
+  FileHelperFunction _fileHelperFunction=new FileHelperFunction();
   FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -149,7 +153,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getUserInfo();
     initiNotification();
-
+    // _fileHelperFunction.createFolders();
     // Constants.MyName=HelperFunction.getUserNameSharedPreference();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -237,21 +241,6 @@ class _HomeState extends State<Home> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatId,username)));
     }
   }
-
-  void createNotification(Map<String, dynamic> message) async{
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-        'your channel id', 'your channel name', 'your channel description',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: false);
-    const NotificationDetails platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-        0, message["notification"]["title"], message["notification"]["body"], platformChannelSpecifics,
-        payload: message["data"]["click_action"]);
-  }
-
 }
 
 class ChatRoomTile extends StatelessWidget {
@@ -296,133 +285,3 @@ class ChatRoomTile extends StatelessWidget {
   }
 }
 
-
-class CustomSearchDelegate extends SearchDelegate {
-
-  QuerySnapshot userList;
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    print(query);
-    DataBaseMethods.GetUserByName(query).then((val) {
-      userList=val;
-    });
-
-    if(userList!=null){
-      return Container(
-          child: ListView.builder(
-            itemCount: userList.documents.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return SearchUserList(
-                name: userList.documents[index].get("name"),
-                number: userList.documents[index].get("number"),
-                image: userList.documents[index].get("image"),
-                token: userList.documents[index].get("usertoken"),
-              );
-            },
-          )
-      );
-    }else{
-      return Container();
-    }
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // This method is called everytime the search term changes.
-    // If you want to add search suggestions as the user enters their search term, this is the place to do that.
-  }
-}
-
-class SearchUserList extends StatelessWidget {
-  String name,number,image,token;
-  String chatRoomId;
-  SearchUserList({this.name,this.number,this.image,this.token});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap:(){
-        chatRoomId=getChatRoomId(name,Constants.MyName);
-        List<String> user=[name,Constants.MyName];
-        var parts = chatRoomId.split('_');
-        var user1 = parts[0].trim();
-        var user2 = parts.sublist(1).join(':').trim();
-
-        List<String> userToken=new List();
-        if(user1!=Constants.MyName){
-          userToken=[token,Constants.Token];
-        }else{
-          userToken=[FirebaseMessaging().getToken().toString(),token];
-        }
-
-        // List<String> userToken=[FirebaseMessaging().getToken().toString(),FirebaseMessaging().getToken().toString()];
-
-        Map<String,dynamic> chatRoomMap=new Map();
-        chatRoomMap['users']=user;
-        chatRoomMap["userToken"]=userToken;
-        chatRoomMap['chatroomId']=chatRoomId;
-
-        DataBaseMethods.createChatRoom(chatRoomId, chatRoomMap);
-
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatRoom(chatRoomId,name)));
-      } ,
-      child:Card(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(100.0),
-                child: Image.network(
-                  image,
-                  width: 40.0,
-                  height: 40.0,
-                  fit: BoxFit.fill,
-                ),
-              ),
-              SizedBox(width: 8,),
-              Text(name,style: TextStyle(
-                  fontSize: 17
-              )),
-              Text(name,style: TextStyle(
-                  fontSize: 17
-              ))
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  getChatRoomId(String user1,String user2){
-    if(user1.substring(0,1).codeUnitAt(0)>user2.substring(0,1).codeUnitAt(0)){
-      return "$user2\_$user1";
-    }else{
-      return "$user1\_$user2";
-    }
-  }
-}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:letschat/helper/Constants.dart';
+import 'package:letschat/constant/Constants.dart';
 
 class Profile extends StatefulWidget {
   @override

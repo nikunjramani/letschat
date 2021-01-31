@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:letschat/utils/validation.dart';
+import 'package:letschat/widget/widget.dart';
 import 'otp.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,17 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             Container(
               margin: EdgeInsets.only(top: 40, right: 10, left: 10),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Phone Number',
-                  prefix: Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Text('+91'),
-                  ),
-                ),
+              child: TextFormField(
+                decoration: TextFieldDecorationLogin("Phone Number"),
                 maxLength: 10,
                 keyboardType: TextInputType.number,
                 controller: _controller,
+                validator: validateMobile,
               ),
             )
           ]),

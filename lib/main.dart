@@ -1,12 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/helper/HelperFunction.dart';
-import 'package:letschat/view/chatRoom.dart';
-import 'package:letschat/view/setProfileInfo.dart';
+import 'package:letschat/data/sharedprefe/shared_preference.dart';
+import 'package:letschat/ui/home.dart';
+import 'package:letschat/ui/login.dart';
 
-import 'view/home.dart';
-import 'view/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
