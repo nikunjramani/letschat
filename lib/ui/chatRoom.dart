@@ -112,10 +112,49 @@ class _ChatRoomState extends State<ChatRoom> {
         //     fit: BoxFit.fill,
         //   ),
         // ),
+        PopupMenuButton<String>(
+          onSelected: handleClick,
+          itemBuilder: (BuildContext context) =>[
+            PopupMenuItem(
+                value: "Profile Info",
+                child: Text("Profile Info")
+            ),
+            PopupMenuItem(
+                value: "Media",
+                child: Text("Media")
+            ),
+            PopupMenuItem(
+                value: "Search",
+                child: Text("Search")
+            ),
+            PopupMenuItem(
+                value: "Notification",
+                child: Text("Notification")
+            ),
+            PopupMenuItem(
+                value: "WallPepar",
+                child: Text("WallPepar")
+            ),
+          ],
+        ),
       ],
     );
   }
+  void handleClick(String value) {
+    switch (value) {
+      case 'Profile Info':
+        break;
+      case 'Media':
+        break;
+      case 'Notification':
+        break;
+      case 'WallPepar':
+        break;
+      case 'Search':
+        break;
 
+    }
+  }
 
   showKeyboard() => textFieldFocus.requestFocus();
 

@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,17 +8,14 @@ import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:letschat/constant/Constants.dart';
 import 'package:letschat/data/localdatabase/FileFunction.dart';
 import 'package:letschat/data/sharedprefe/shared_preference.dart';
-import 'package:letschat/main.dart';
 import 'package:letschat/model/userlist.dart';
 import 'package:letschat/data/firestore/DataBaseMethod.dart';
 import 'package:letschat/ui/login.dart';
 import 'package:letschat/ui/profile.dart';
 import 'package:letschat/ui/viewContact.dart';
 import 'package:letschat/widget/homewidgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chatRoom.dart';
-
 
 class Home extends StatefulWidget {
   @override
@@ -32,31 +26,35 @@ class _HomeState extends State<Home> {
   SearchBar searchBar;
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  DataBaseMethods dataBaseMethods=new DataBaseMethods();
+  DataBaseMethods dataBaseMethods = new DataBaseMethods();
   Stream chatRoomStream;
-  FileHelperFunction _fileHelperFunction=new FileHelperFunction();
+  FileHelperFunction _fileHelperFunction = new FileHelperFunction();
   FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  Widget chatRoomList(){
+
+  Widget chatRoomList() {
     return StreamBuilder(
-      stream: chatRoomStream,
-        builder: (context,snapshop){
-          return snapshop.hasData?ListView.builder(
-              itemCount: snapshop.data.documents.length,
-              shrinkWrap: true,
-              itemBuilder: (context,index){
-                return ChatRoomTile(
-                    snapshop.data.documents[index].get("chatroomId")
-                        .toString().replaceAll("_", "")
-                        .replaceAll(Constants.MyName, ""),
-                    snapshop.data.documents[index].get("chatroomId")
-                );
-              }):Container();
-        }
-    );
+        stream: chatRoomStream,
+        builder: (context, snapshop) {
+          return snapshop.hasData
+              ? ListView.builder(
+                  itemCount: snapshop.data.documents.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return ChatRoomTile(
+                        snapshop.data.documents[index]
+                            .get("chatroomId")
+                            .toString()
+                            .replaceAll("_", "")
+                            .replaceAll(Constants.MyName, ""),
+                        snapshop.data.documents[index].get("chatroomId"));
+                  })
+              : Container();
+        });
   }
-  Widget AppbarBuild(){
+
+  Widget AppbarBuild() {
     return AppBar(
       title: Text("Letschat"),
       actions: <Widget>[
@@ -71,13 +69,38 @@ class _HomeState extends State<Home> {
             );
           },
         ),
+        PopupMenuButton<String>(
+          onSelected: handleClick,
+          itemBuilder: (BuildContext context) {
+            return {'New Group', 'New Broadcast','Favorite Message','Setting'}.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+              );
+            }).toList();
+          },
+        ),
       ],
     );
   }
+  void handleClick(String value) {
+    switch (value) {
+      case 'New Group':
+        break;
+      case 'Settings':
+        break;
+      case 'New Broadcast':
+        break;
+      case 'Favorite Message':
+        break;
+    }
+  }
+
   signOut() async {
     await auth.signOut();
     await HelperFunction.saveUserLoginSharedPreference(false);
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>new LoginScreen()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => new LoginScreen()));
   }
 
   @override
@@ -89,10 +112,8 @@ class _HomeState extends State<Home> {
         appBar: AppbarBuild(),
         key: _scaffoldKey,
         body: Container(
-          child:Column(
-            children: [
-              chatRoomList()
-            ],
+          child: Column(
+            children: [chatRoomList()],
           ),
         ),
         floatingActionButton: Builder(
@@ -112,8 +133,7 @@ class _HomeState extends State<Home> {
             fabMargin: const EdgeInsets.all(16.0),
             animationDuration: const Duration(milliseconds: 800),
             animationCurve: Curves.easeInOutCirc,
-            onDisplayChange: (isOpen) {
-            },
+            onDisplayChange: (isOpen) {},
             children: <Widget>[
               RawMaterialButton(
                 onPressed: signOut,
@@ -124,7 +144,8 @@ class _HomeState extends State<Home> {
               RawMaterialButton(
                 onPressed: () {
                   fabKey.currentState.close();
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>new Profile()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => new Profile()));
                 },
                 shape: CircleBorder(),
                 padding: const EdgeInsets.all(24.0),
@@ -133,7 +154,8 @@ class _HomeState extends State<Home> {
               RawMaterialButton(
                 onPressed: () {
                   fabKey.currentState.close();
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewContact()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ViewContact()));
                 },
                 shape: CircleBorder(),
                 padding: const EdgeInsets.all(24.0),
@@ -146,7 +168,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -157,29 +178,21 @@ class _HomeState extends State<Home> {
     // Constants.MyName=HelperFunction.getUserNameSharedPreference();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        setState(() {
-        });
+        setState(() {});
         createNotification(message);
         print("onMessage: $message");
       },
       onLaunch: (Map<String, dynamic> message) async {
-        setState(() {
-        });
+        setState(() {});
         print("onLaunch: $message");
       },
       onResume: (Map<String, dynamic> message) async {
-        setState(() {
-        });
+        setState(() {});
         print("onResume: $message");
       },
     );
     _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(
-            sound: true,
-            badge: true,
-            alert: true
-        )
-    );
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
@@ -187,73 +200,78 @@ class _HomeState extends State<Home> {
     _firebaseMessaging.getToken().then((String token) {
       assert(token != null);
       setState(() {
-        Constants.Token=token;
+        Constants.Token = token;
         print(token);
       });
     });
   }
 
-  getData() async{
-    await DataBaseMethods.getChatRooms(Constants.MyName).then((value){
+  getData() async {
+    await DataBaseMethods.getChatRooms(Constants.MyName).then((value) {
       setState(() {
-        chatRoomStream=value;
+        chatRoomStream = value;
       });
     });
   }
 
   getUserInfo() async {
-    Constants.MyName=await HelperFunction.getUserNameSharedPreference();
-    Constants.MyNumber=await HelperFunction.getUserNumberSharedPreference();
-    Constants.MyDob=await HelperFunction.getUserDobSharedPreference();
-    Constants.MyImage=await HelperFunction.getUserImageSharedPreference();
-    Constants.MyAvoutMe=await HelperFunction.getUserAboutSharedPreference();
+    Constants.MyName = await HelperFunction.getUserNameSharedPreference();
+    Constants.MyNumber = await HelperFunction.getUserNumberSharedPreference();
+    Constants.MyDob = await HelperFunction.getUserDobSharedPreference();
+    Constants.MyImage = await HelperFunction.getUserImageSharedPreference();
+    Constants.MyAvoutMe = await HelperFunction.getUserAboutSharedPreference();
     getData();
   }
 
   Future<void> initiNotification() async {
-    flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings("userprofile");
+        AndroidInitializationSettings("userprofile");
     final IOSInitializationSettings initializationSettingsIOS =
-    IOSInitializationSettings(
-        onDidReceiveLocalNotification: null);
+        IOSInitializationSettings(onDidReceiveLocalNotification: null);
     final MacOSInitializationSettings initializationSettingsMacOS =
-    MacOSInitializationSettings();
-    final InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsIOS,
-        macOS: initializationSettingsMacOS);
+        MacOSInitializationSettings();
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsIOS,
+            macOS: initializationSettingsMacOS);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: selectNotification);
     await flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 
   Future selectNotification(String payload) async {
-    if (payload !=null) {
+    if (payload != null) {
       debugPrint('notification payload: $payload');
       print(payload);
       var parts = payload.split(',');
       var chatId = parts[0].trim();
       var username = parts.sublist(1).join(':').trim();
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatId,username)));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ChatRoom(chatId, username)));
     }
   }
 }
 
 class ChatRoomTile extends StatelessWidget {
-  final String username,chatRoom;
+  final String username, chatRoom;
+
   ChatRoomTile(this.username, this.chatRoom);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatRoom(chatRoom,username)));
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatRoom(chatRoom, username)));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 18,vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         child: Row(
           children: [
             Container(
@@ -264,19 +282,20 @@ class ChatRoomTile extends StatelessWidget {
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(48),
               ),
-              child: Text("${username.substring(0,1).toUpperCase()}"),
+              child: Text("${username.substring(0, 1).toUpperCase()}"),
             ),
-            SizedBox(width: 8,),
+            SizedBox(
+              width: 8,
+            ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 12),
-              width:  MediaQuery.of(context).size.width-100,
-                decoration: new BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(width: 1.0, color: Colors.grey),),
+              width: MediaQuery.of(context).size.width - 100,
+              decoration: new BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.grey),
                 ),
-                child:Text(username,style: TextStyle(
-                      fontSize: 17
-                  )),
+              ),
+              child: Text(username, style: TextStyle(fontSize: 17)),
             ),
           ],
         ),
@@ -284,4 +303,3 @@ class ChatRoomTile extends StatelessWidget {
     );
   }
 }
-
