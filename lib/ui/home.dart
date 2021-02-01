@@ -8,11 +8,13 @@ import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:letschat/constant/Constants.dart';
 import 'package:letschat/data/localdatabase/FileFunction.dart';
 import 'package:letschat/data/sharedprefe/shared_preference.dart';
+import 'package:letschat/model/chatroomtile.dart';
 import 'package:letschat/model/userlist.dart';
 import 'package:letschat/data/firestore/DataBaseMethod.dart';
 import 'package:letschat/ui/login.dart';
 import 'package:letschat/ui/profile.dart';
 import 'package:letschat/ui/viewContact.dart';
+import 'package:letschat/utils/permissionhandler.dart';
 import 'package:letschat/widget/homewidgets.dart';
 
 import 'chatRoom.dart';
@@ -24,6 +26,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   SearchBar searchBar;
+  PermissionHandler permissionHandler=new PermissionHandler();
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DataBaseMethods dataBaseMethods = new DataBaseMethods();
@@ -174,6 +177,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getUserInfo();
     initiNotification();
+    permissionHandler.getAllRequirePermission();
     // _fileHelperFunction.createFolders();
     // Constants.MyName=HelperFunction.getUserNameSharedPreference();
     _firebaseMessaging.configure(
@@ -253,53 +257,5 @@ class _HomeState extends State<Home> {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => ChatRoom(chatId, username)));
     }
-  }
-}
-
-class ChatRoomTile extends StatelessWidget {
-  final String username, chatRoom;
-
-  ChatRoomTile(this.username, this.chatRoom);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatRoom(chatRoom, username)));
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(48),
-              ),
-              child: Text("${username.substring(0, 1).toUpperCase()}"),
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              width: MediaQuery.of(context).size.width - 100,
-              decoration: new BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(width: 1.0, color: Colors.grey),
-                ),
-              ),
-              child: Text(username, style: TextStyle(fontSize: 17)),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

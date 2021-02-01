@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:letschat/model/searchusers.dart';
 import 'package:letschat/data/firestore/DataBaseMethod.dart';
 
+
 class CustomSearchDelegate extends SearchDelegate {
 
   QuerySnapshot userList;

@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:letschat/utils/validation.dart';
 import 'package:letschat/widget/widget.dart';
@@ -10,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _controller = TextEditingController();
+  String countryCode="";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,8 +32,24 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Container(
+              decoration: ContainerDecoration(),
               margin: EdgeInsets.only(top: 40, right: 10, left: 10),
-              child: TextFormField(
+              padding: EdgeInsets.all(4),
+              child: CountryCodePicker(
+                onChanged: print,
+                showFlagMain: true,
+                showFlag: true,
+                initialSelection: 'IN',
+                showOnlyCountryWhenClosed: true,
+                alignLeft: true,
+                onInit: (code)=>{
+                  countryCode=code.dialCode
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 10, right: 10, left: 10),
+              child:TextFormField(
                 decoration: TextFieldDecorationLogin("Phone Number"),
                 maxLength: 10,
                 keyboardType: TextInputType.number,
@@ -45,9 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
             width: double.infinity,
             child: FlatButton(
               color: Colors.blue,
+              shape: ButtonDecoration(),
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => OTPScreen(_controller.text)));
+                    builder: (context) => OTPScreen(countryCode+_controller.text)));
               },
               child: Text(
                 'Next',

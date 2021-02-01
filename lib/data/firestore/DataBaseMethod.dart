@@ -11,6 +11,10 @@ class DataBaseMethods{
         .where("name",isEqualTo: name)
         .get();
   }
+  static GetAllUser() async{
+    return await Firestore.instance.collection("User")
+        .snapshots();
+  }
   static uploadUserInfo(UserMap){
     Firestore.instance.collection("User").
     add(UserMap);
