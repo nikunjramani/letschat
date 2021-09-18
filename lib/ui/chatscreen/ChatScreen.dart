@@ -10,13 +10,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/model/messagetile.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/ui/chatscreen/ChatScreenMessageTile.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:letschat/utils/notification.dart';
-import 'package:letschat/ui/viewImageBeforeUpload.dart';
+import 'package:letschat/ui/chatscreen/ViewImageBeforeUpload.dart';
 
 class ChatRoom extends StatefulWidget {
   final String ChatRoomId, name;

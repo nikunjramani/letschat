@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
 import 'package:letschat/model/Contacts.dart';
 import 'package:letschat/model/Users.dart';
-import 'package:letschat/model/chatroomtile.dart';
-import 'package:letschat/model/searchusers.dart';
-import 'package:letschat/model/userlist.dart';
+import 'package:letschat/ui/chatroom/ChatRoomTile.dart';
+import 'package:letschat/ui/chatroom/SearchUser.dart';
+import 'package:letschat/ui/chatroom/SearchUserList.dart';
 import 'package:letschat/utils/permissionhandler.dart';
 import 'package:permission_handler/permission_handler.dart';
 

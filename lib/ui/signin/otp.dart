@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/data/sharedprefe/shared_preference.dart';
-import 'package:letschat/ui/setProfileInfo.dart';
-import 'home.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/shared_preference.dart';
+import 'package:letschat/ui/signin/setProfileInfo.dart';
+import '../chatroom/ChatRoom.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -84,20 +85,18 @@ class _OTPScreenState extends State<OTPScreen> {
         .get().then((QuerySnapshot snapshot) => {
       snapshot.docs.forEach((element) {
         print(FirebaseAuth.instance.currentUser.phoneNumber);
-        print("work");
         if(element["number"]==FirebaseAuth.instance.currentUser.phoneNumber){
-          HelperFunction.saveUserAboutSharedPreference(element["aboutme"]);
-          HelperFunction.saveUserNameSharedPreference(element["name"]);
-          HelperFunction.saveUserNumberSharedPreference(FirebaseAuth.instance.currentUser.phoneNumber);
-          HelperFunction.saveUserImageSharedPreference(element["image"]);
-          HelperFunction.saveUserDobSharedPreference(element["dob"]);
-          HelperFunction.saveUserLoginSharedPreference(true);
+          SharedPreference.setString(Constants.sharedPreferenceUserAbout,element["aboutme"]);
+          SharedPreference.setString(Constants.sharedPreferenceUserName,element["name"]);
+          SharedPreference.setString(Constants.sharedPreferenceUserNumber,FirebaseAuth.instance.currentUser.phoneNumber);
+          SharedPreference.setString(Constants.sharedPreferenceUserImage,element["image"]);
+          SharedPreference.setString(Constants.sharedPreferenceUserDob,element["dob"]);
+          SharedPreference.setBoolean(Constants.sharedPreferenceUserLogInKey,true);
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Home()),
                   (route) => false);
         }else{
-          print("dontWork");
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => SetProfileInfo()),

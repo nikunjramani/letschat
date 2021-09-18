@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/ui/chatRoom.dart';
+import 'package:letschat/ui/chatscreen/ChatScreen.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final String username, chatRoom;

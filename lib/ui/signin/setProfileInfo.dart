@@ -5,11 +5,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/data/sharedprefe/shared_preference.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/shared_preference.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
 
-import 'home.dart';
+import '../chatroom/ChatRoom.dart';
 class SetProfileInfo extends StatefulWidget {
   @override
   _SetProfileInfoState createState() => _SetProfileInfoState();
@@ -48,13 +48,13 @@ class _SetProfileInfoState extends State<SetProfileInfo> {
       map['usertoken']=await FirebaseMessaging().getToken();
 
       Constants.MyName=name.text;
-      HelperFunction.saveUserAboutSharedPreference(aboutme.text);
-      HelperFunction.saveUserNameSharedPreference(name.text);
-      HelperFunction.saveUserNumberSharedPreference(FirebaseAuth.instance.currentUser.phoneNumber);
-      HelperFunction.saveUserImageSharedPreference(profileImage);
-      HelperFunction.saveUserDobSharedPreference(dob);
-      HelperFunction.saveUserTokenSharedPreference(await FirebaseMessaging().getToken());
-      HelperFunction.saveUserLoginSharedPreference(true);
+      SharedPreference.setString(Constants.sharedPreferenceUserAbout,aboutme.text);
+      SharedPreference.setString(Constants.sharedPreferenceUserName,name.text);
+      SharedPreference.setString(Constants.sharedPreferenceUserNumber,FirebaseAuth.instance.currentUser.phoneNumber);
+      SharedPreference.setString(Constants.sharedPreferenceUserImage,profileImage);
+      SharedPreference.setString(Constants.sharedPreferenceUserDob,dob);
+      SharedPreference.setString(Constants.sharedPreferenceUserToken,await FirebaseMessaging().getToken());
+      SharedPreference.setBoolean(Constants.sharedPreferenceUserLogInKey,true);
     DataBaseMethods.uploadUserInfo(map);
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => Home()

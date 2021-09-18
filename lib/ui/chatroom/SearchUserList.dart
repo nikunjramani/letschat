@@ -1,8 +1,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/model/searchusers.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/ui/chatroom/SearchUser.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
 
 
 class CustomSearchDelegate extends SearchDelegate {

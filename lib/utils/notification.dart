@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:letschat/constant/Constants.dart';
+import 'package:letschat/utils/Constants.dart';
 
 Future<Map<String, dynamic>> sendAndRetrieveMessage(String title,String message,String token,String name,String ChatRoomId) async {
   await FirebaseMessaging().requestNotificationPermissions(

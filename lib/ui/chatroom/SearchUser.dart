@@ -1,9 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
-import 'package:letschat/ui/chatRoom.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
+import 'package:letschat/ui/chatscreen/ChatScreen.dart';
 
 class SearchUserList extends StatelessWidget {
   String name, number, image, token;

@@ -5,10 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
 import 'package:http/http.dart' as http;
-import 'package:letschat/ui/chatRoom.dart';
+import 'package:letschat/ui/chatscreen/ChatScreen.dart';
 import 'package:image/image.dart' as Imp;
 
 class UploadImage extends StatefulWidget {

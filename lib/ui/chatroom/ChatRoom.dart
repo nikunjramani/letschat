@@ -5,19 +5,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
-import 'package:letschat/constant/Constants.dart';
-import 'package:letschat/data/localdatabase/FileFunction.dart';
-import 'package:letschat/data/sharedprefe/shared_preference.dart';
-import 'package:letschat/model/chatroomtile.dart';
-import 'package:letschat/model/userlist.dart';
-import 'package:letschat/data/firestore/DataBaseMethod.dart';
-import 'package:letschat/ui/login.dart';
-import 'package:letschat/ui/profile.dart';
-import 'package:letschat/ui/viewContact.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/FileFunction.dart';
+import 'package:letschat/utils/shared_preference.dart';
+import 'package:letschat/ui/chatroom/ChatRoomTile.dart';
+import 'package:letschat/ui/chatroom/SearchUserList.dart';
+import 'package:letschat/utils/DataBaseMethod.dart';
+import 'package:letschat/ui/signin/login.dart';
+import 'package:letschat/ui/profile/profile.dart';
+import 'package:letschat/ui/contact/viewContact.dart';
 import 'package:letschat/utils/permissionhandler.dart';
 import 'package:letschat/widget/homewidgets.dart';
 
-import 'chatRoom.dart';
+import '../chatscreen/ChatScreen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -101,7 +101,7 @@ class _HomeState extends State<Home> {
 
   signOut() async {
     await auth.signOut();
-    await HelperFunction.saveUserLoginSharedPreference(false);
+    await SharedPreference.setBoolean(Constants.sharedPreferenceUserLogInKey,false);
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => new LoginScreen()));
   }
@@ -219,11 +219,11 @@ class _HomeState extends State<Home> {
   }
 
   getUserInfo() async {
-    Constants.MyName = await HelperFunction.getUserNameSharedPreference();
-    Constants.MyNumber = await HelperFunction.getUserNumberSharedPreference();
-    Constants.MyDob = await HelperFunction.getUserDobSharedPreference();
-    Constants.MyImage = await HelperFunction.getUserImageSharedPreference();
-    Constants.MyAvoutMe = await HelperFunction.getUserAboutSharedPreference();
+    Constants.MyName = await SharedPreference.getString(Constants.sharedPreferenceUserName);
+    Constants.MyNumber = await SharedPreference.getString(Constants.sharedPreferenceUserNumber);
+    Constants.MyDob = await SharedPreference.getString(Constants.sharedPreferenceUserDob);
+    Constants.MyImage = await SharedPreference.getString(Constants.sharedPreferenceUserImage);
+    Constants.MyAvoutMe = await SharedPreference.getString(Constants.sharedPreferenceUserAbout);
     getData();
   }
 

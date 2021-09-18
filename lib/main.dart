@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/data/sharedprefe/shared_preference.dart';
-import 'package:letschat/ui/home.dart';
-import 'package:letschat/ui/login.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/shared_preference.dart';
+import 'package:letschat/ui/chatroom/ChatRoom.dart';
+import 'package:letschat/ui/signin/login.dart';
 
 
 void main() async {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<bool>(
-        future: HelperFunction.getUserLoginSharedPreference(),
+        future: SharedPreference.getBool(Constants.sharedPreferenceUserLogInKey),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if(snapshot.data == true) {
             return Home();
