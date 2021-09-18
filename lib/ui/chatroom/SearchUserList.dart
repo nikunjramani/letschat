@@ -1,12 +1,9 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:letschat/ui/chatroom/SearchUser.dart';
-import 'package:letschat/utils/DataBaseMethod.dart';
-
+import 'package:letschat/utils/FirestoreProvider.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
-
   QuerySnapshot userList;
 
   @override
@@ -34,26 +31,25 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     print(query);
-    DataBaseMethods.GetUserByName(query).then((val) {
-      userList=val;
+    DataBaseMethods.getUserByName(query).then((val) {
+      userList = val;
     });
 
-    if(userList!=null){
+    if (userList != null) {
       return Container(
           child: ListView.builder(
-            itemCount: userList.documents.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return SearchUserList(
-                name: userList.documents[index].get("name"),
-                number: userList.documents[index].get("number"),
-                image: userList.documents[index].get("image"),
-                token: userList.documents[index].get("usertoken"),
-              );
-            },
-          )
-      );
-    }else{
+        itemCount: userList.docs.length,
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          return SearchUser(
+            name: userList.docs[index].get("name"),
+            number: userList.docs[index].get("number"),
+            image: userList.docs[index].get("image"),
+            token: userList.docs[index].get("usertoken"),
+          );
+        },
+      ));
+    } else {
       return Container();
     }
   }

@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker/emoji_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,13 +8,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/utils/Constants.dart';
 import 'package:letschat/ui/chatscreen/ChatScreenMessageTile.dart';
-import 'package:letschat/utils/DataBaseMethod.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:letschat/utils/notification.dart';
 import 'package:letschat/ui/chatscreen/ViewImageBeforeUpload.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/FirestoreProvider.dart';
+import 'package:letschat/utils/NotificationUtils.dart';
 
 class ChatRoom extends StatefulWidget {
   final String ChatRoomId, name;
@@ -85,7 +81,7 @@ class _ChatRoomState extends State<ChatRoom> {
       messageController.text = "";
       String sendToken = await DataBaseMethods.getUserToken(Constants.Token);
       print(sendToken);
-      sendAndRetrieveMessage(
+      NotificationUtils.sendAndRetrieveMessage(
           Constants.MyName, content, sendToken, widget.name, widget.ChatRoomId);
       // isLoading=false;
     }
@@ -556,7 +552,7 @@ class _ChatRoomState extends State<ChatRoom> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                UploadImage(pickedFile, widget.ChatRoomId, widget.name)));
+                ViewImageBeforeUpload(pickedFile, widget.ChatRoomId, widget.name)));
   }
 
   void _takePhoto() async {

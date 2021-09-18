@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FileFunction.dart';
-import 'package:letschat/utils/shared_preference.dart';
 import 'package:letschat/ui/chatroom/ChatRoomTile.dart';
 import 'package:letschat/ui/chatroom/SearchUserList.dart';
-import 'package:letschat/utils/DataBaseMethod.dart';
-import 'package:letschat/ui/signin/login.dart';
-import 'package:letschat/ui/profile/profile.dart';
-import 'package:letschat/ui/contact/viewContact.dart';
-import 'package:letschat/utils/permissionhandler.dart';
-import 'package:letschat/widget/homewidgets.dart';
+import 'package:letschat/ui/contact/ViewContact.dart';
+import 'package:letschat/ui/profile/Profile.dart';
+import 'package:letschat/ui/signin/SignIn.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/FirestoreProvider.dart';
+import 'package:letschat/utils/NotificationUtils.dart';
+import 'package:letschat/utils/PermissionHandler.dart';
+import 'package:letschat/utils/PreferenceUtils.dart';
 
 import '../chatscreen/ChatScreen.dart';
 
@@ -26,12 +26,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   SearchBar searchBar;
-  PermissionHandler permissionHandler=new PermissionHandler();
+  PermissionHandler permissionHandler = new PermissionHandler();
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DataBaseMethods dataBaseMethods = new DataBaseMethods();
   Stream chatRoomStream;
-  FileHelperFunction _fileHelperFunction = new FileHelperFunction();
   FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -57,7 +56,7 @@ class _HomeState extends State<Home> {
         });
   }
 
-  Widget AppbarBuild() {
+  Widget appbarBuild() {
     return AppBar(
       title: Text("Letschat"),
       actions: <Widget>[
@@ -75,7 +74,8 @@ class _HomeState extends State<Home> {
         PopupMenuButton<String>(
           onSelected: handleClick,
           itemBuilder: (BuildContext context) {
-            return {'New Group', 'New Broadcast','Favorite Message','Setting'}.map((String choice) {
+            return {'New Group', 'New Broadcast', 'Favorite Message', 'Setting'}
+                .map((String choice) {
               return PopupMenuItem<String>(
                 value: choice,
                 child: Text(choice),
@@ -86,6 +86,7 @@ class _HomeState extends State<Home> {
       ],
     );
   }
+
   void handleClick(String value) {
     switch (value) {
       case 'New Group':
@@ -101,9 +102,10 @@ class _HomeState extends State<Home> {
 
   signOut() async {
     await auth.signOut();
-    await SharedPreference.setBoolean(Constants.sharedPreferenceUserLogInKey,false);
+    await PreferenceUtils.setBoolean(
+        Constants.sharedPreferenceUserLogInKey, false);
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => new LoginScreen()));
+        context, MaterialPageRoute(builder: (context) => new SignIn()));
   }
 
   @override
@@ -112,7 +114,7 @@ class _HomeState extends State<Home> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppbarBuild(),
+        appBar: appbarBuild(),
         key: _scaffoldKey,
         body: Container(
           child: Column(
@@ -176,14 +178,14 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     getUserInfo();
-    initiNotification();
+    initNotification();
     permissionHandler.getAllRequirePermission();
     // _fileHelperFunction.createFolders();
-    // Constants.MyName=HelperFunction.getUserNameSharedPreference();
+    // Constants.MyName=HelperFunction.getUserNamePreferenceUtils();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         setState(() {});
-        createNotification(message);
+        NotificationUtils.createNotification(message);
         print("onMessage: $message");
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -219,15 +221,20 @@ class _HomeState extends State<Home> {
   }
 
   getUserInfo() async {
-    Constants.MyName = await SharedPreference.getString(Constants.sharedPreferenceUserName);
-    Constants.MyNumber = await SharedPreference.getString(Constants.sharedPreferenceUserNumber);
-    Constants.MyDob = await SharedPreference.getString(Constants.sharedPreferenceUserDob);
-    Constants.MyImage = await SharedPreference.getString(Constants.sharedPreferenceUserImage);
-    Constants.MyAvoutMe = await SharedPreference.getString(Constants.sharedPreferenceUserAbout);
+    Constants.MyName =
+        await PreferenceUtils.getString(Constants.sharedPreferenceUserName);
+    Constants.MyNumber =
+        await PreferenceUtils.getString(Constants.sharedPreferenceUserNumber);
+    Constants.MyDob =
+        await PreferenceUtils.getString(Constants.sharedPreferenceUserDob);
+    Constants.MyImage =
+        await PreferenceUtils.getString(Constants.sharedPreferenceUserImage);
+    Constants.MyAvoutMe =
+        await PreferenceUtils.getString(Constants.sharedPreferenceUserAbout);
     getData();
   }
 
-  Future<void> initiNotification() async {
+  Future<void> initNotification() async {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     const AndroidInitializationSettings initializationSettingsAndroid =

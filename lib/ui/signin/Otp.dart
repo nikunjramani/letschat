@@ -1,15 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:letschat/ui/signin/ProfileInfo.dart';
 import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/shared_preference.dart';
-import 'package:letschat/ui/signin/setProfileInfo.dart';
-import '../chatroom/ChatRoom.dart';
+import 'package:letschat/utils/PreferenceUtils.dart';
 import 'package:pinput/pin_put/pin_put.dart';
+
+import '../chatroom/ChatRoom.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
+
   OTPScreen(this.phone);
+
   @override
   _OTPScreenState createState() => _OTPScreenState();
 }
@@ -26,6 +29,7 @@ class _OTPScreenState extends State<OTPScreen> {
       color: Colors.black54,
     ),
   );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +65,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 try {
                   await FirebaseAuth.instance
                       .signInWithCredential(PhoneAuthProvider.credential(
-                      verificationId: _verificationCode, smsCode: pin))
+                          verificationId: _verificationCode, smsCode: pin))
                       .then((value) async {
                     if (value.user != null) {
                       checkUser();
@@ -69,8 +73,16 @@ class _OTPScreenState extends State<OTPScreen> {
                   });
                 } catch (e) {
                   FocusScope.of(context).unfocus();
-                  _scaffoldkey.currentState
-                      .showSnackBar(SnackBar(content: Text('invalid OTP')));
+                  // _scaffoldkey.currentState
+                  //     .showSnackBar(SnackBar(content: Text('')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text('snack'),
+                    duration: const Duration(seconds: 1),
+                    action: SnackBarAction(
+                      label: 'invalid OTP',
+                      onPressed: () { },
+                    ),
+                  ));
                 }
               },
             ),
@@ -79,31 +91,43 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
     );
   }
+
   checkUser() async {
-    Firestore.instance.collection("User")
-        .where("number",isEqualTo:FirebaseAuth.instance.currentUser.phoneNumber)
-        .get().then((QuerySnapshot snapshot) => {
-      snapshot.docs.forEach((element) {
-        print(FirebaseAuth.instance.currentUser.phoneNumber);
-        if(element["number"]==FirebaseAuth.instance.currentUser.phoneNumber){
-          SharedPreference.setString(Constants.sharedPreferenceUserAbout,element["aboutme"]);
-          SharedPreference.setString(Constants.sharedPreferenceUserName,element["name"]);
-          SharedPreference.setString(Constants.sharedPreferenceUserNumber,FirebaseAuth.instance.currentUser.phoneNumber);
-          SharedPreference.setString(Constants.sharedPreferenceUserImage,element["image"]);
-          SharedPreference.setString(Constants.sharedPreferenceUserDob,element["dob"]);
-          SharedPreference.setBoolean(Constants.sharedPreferenceUserLogInKey,true);
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => Home()),
-                  (route) => false);
-        }else{
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => SetProfileInfo()),
-                  (route) => false);
-        }
-      })
-    });
+    FirebaseFirestore.instance
+        .collection("User")
+        .where("number",
+            isEqualTo: FirebaseAuth.instance.currentUser.phoneNumber)
+        .get()
+        .then((QuerySnapshot snapshot) => {
+              snapshot.docs.forEach((element) {
+                print(FirebaseAuth.instance.currentUser.phoneNumber);
+                if (element["number"] ==
+                    FirebaseAuth.instance.currentUser.phoneNumber) {
+                  PreferenceUtils.setString(
+                      Constants.sharedPreferenceUserAbout, element["aboutme"]);
+                  PreferenceUtils.setString(
+                      Constants.sharedPreferenceUserName, element["name"]);
+                  PreferenceUtils.setString(
+                      Constants.sharedPreferenceUserNumber,
+                      FirebaseAuth.instance.currentUser.phoneNumber);
+                  PreferenceUtils.setString(
+                      Constants.sharedPreferenceUserImage, element["image"]);
+                  PreferenceUtils.setString(
+                      Constants.sharedPreferenceUserDob, element["dob"]);
+                  PreferenceUtils.setBoolean(
+                      Constants.sharedPreferenceUserLogInKey, true);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => Home()),
+                      (route) => false);
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileInfo()),
+                      (route) => false);
+                }
+              })
+            });
   }
 
   _verifyPhone() async {

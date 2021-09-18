@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "1000022796339-re65ui89fqpt91dldl3dt39j9a24ipr4.apps.googleusercontent.com",
+          "client_id": "1000022796339-6t5fgrvshtk6a8hang8usmogi9maflq8.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.letschat",
-            "certificate_hash": "e2f843ecc05a5e19e56ec96eaa861f9f0a564891"
+            "certificate_hash": "3546f485647d0a9c16a7d5817a24bf0cca16707c"
           }
         },
         {

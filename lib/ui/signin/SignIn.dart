@@ -1,17 +1,19 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/utils/validation.dart';
-import 'package:letschat/widget/widget.dart';
-import 'otp.dart';
+import 'package:letschat/utils/ValidationUtils.dart';
+import 'package:letschat/utils/widget.dart';
 
-class LoginScreen extends StatefulWidget {
+import 'Otp.dart';
+
+class SignIn extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignInState createState() => _SignInState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignInState extends State<SignIn> {
   TextEditingController _controller = TextEditingController();
-  String countryCode="";
+  String countryCode = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,31 +44,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 initialSelection: 'IN',
                 showOnlyCountryWhenClosed: true,
                 alignLeft: true,
-                onInit: (code)=>{
-                  countryCode=code.dialCode
-                },
+                onInit: (code) => {countryCode = code.dialCode},
               ),
             ),
             Container(
               margin: EdgeInsets.only(top: 10, right: 10, left: 10),
-              child:TextFormField(
+              child: TextFormField(
                 decoration: TextFieldDecorationLogin("Phone Number"),
                 maxLength: 10,
                 keyboardType: TextInputType.number,
                 controller: _controller,
-                validator: validateMobile,
+                validator: ValidationUtils.validateMobile,
               ),
             )
           ]),
           Container(
             margin: EdgeInsets.all(10),
             width: double.infinity,
-            child: FlatButton(
-              color: Colors.blue,
-              shape: ButtonDecoration(),
+            child: TextButton(
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => OTPScreen(countryCode+_controller.text)));
+                    builder: (context) =>
+                        OTPScreen(countryCode + _controller.text)));
               },
               child: Text(
                 'Next',

@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
-AppBar getAppBar(String title){
+AppBar getAppBar(String title) {
   return AppBar(
     title: Text(title),
   );
 }
 
-InputDecoration TextFieldDecorationLogin(String hint){
+InputDecoration TextFieldDecorationLogin(String hint) {
   return InputDecoration(
     labelText: hint,
-    hintStyle: TextStyle(
-        color: Colors.black
-    ),
+    hintStyle: TextStyle(color: Colors.black),
     focusedBorder: OutlineInputBorder(
       borderSide: BorderSide(color: Colors.black54, width: 1.0),
     ),
@@ -21,18 +19,16 @@ InputDecoration TextFieldDecorationLogin(String hint){
   );
 }
 
-BoxDecoration ContainerDecoration(){
+BoxDecoration ContainerDecoration() {
   return BoxDecoration(
       borderRadius: BorderRadius.all(
           Radius.circular(5.0) //                 <--- border radius here
-      ),
-      border: Border.all(color: Colors.black54)
-  );
+          ),
+      border: Border.all(color: Colors.black54));
 }
 
-RoundedRectangleBorder ButtonDecoration(){
+RoundedRectangleBorder ButtonDecoration() {
   return RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),
-      side: BorderSide(color: Colors.blue)
-  );
+      side: BorderSide(color: Colors.blue));
 }

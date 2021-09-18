@@ -7,14 +7,13 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text('Profile'),
-          leading:  IconButton(
+          leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -37,28 +36,8 @@ class _ProfileState extends State<Profile> {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 40,
-                              width: 40,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                // color: Colors.white,
-                                borderRadius: BorderRadius.circular(48),
-                              ),
-                              child: Icon(Icons.person)
-                            ),
-                            SizedBox(width: 8,),
-                            Text(Constants.MyName,style: TextStyle(
-                                fontSize: 17
-                            ))
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Row(
                           children: [
                             Container(
@@ -69,17 +48,18 @@ class _ProfileState extends State<Profile> {
                                   // color: Colors.white,
                                   borderRadius: BorderRadius.circular(48),
                                 ),
-                                child: Icon(Icons.call)
+                                child: Icon(Icons.person)),
+                            SizedBox(
+                              width: 8,
                             ),
-                            SizedBox(width: 8,),
-                            Text(Constants.MyNumber,style: TextStyle(
-                                fontSize: 17
-                            ))
+                            Text(Constants.MyName,
+                                style: TextStyle(fontSize: 17))
                           ],
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Row(
                           children: [
                             Container(
@@ -90,17 +70,18 @@ class _ProfileState extends State<Profile> {
                                   // color: Colors.white,
                                   borderRadius: BorderRadius.circular(48),
                                 ),
-                                child: Icon(Icons.accessibility_rounded)
+                                child: Icon(Icons.call)),
+                            SizedBox(
+                              width: 8,
                             ),
-                            SizedBox(width: 8,),
-                            Text(Constants.MyDob,style: TextStyle(
-                                fontSize: 17
-                            ))
+                            Text(Constants.MyNumber,
+                                style: TextStyle(fontSize: 17))
                           ],
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24,vertical: 16),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Row(
                           children: [
                             Container(
@@ -111,12 +92,34 @@ class _ProfileState extends State<Profile> {
                                   // color: Colors.white,
                                   borderRadius: BorderRadius.circular(48),
                                 ),
-                                child: Icon(Icons.error_outline)
+                                child: Icon(Icons.accessibility_rounded)),
+                            SizedBox(
+                              width: 8,
                             ),
-                            SizedBox(width: 8,),
-                            Text(Constants.MyAvoutMe,style: TextStyle(
-                                fontSize: 17
-                            ))
+                            Text(Constants.MyDob,
+                                style: TextStyle(fontSize: 17))
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                                height: 40,
+                                width: 40,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  // color: Colors.white,
+                                  borderRadius: BorderRadius.circular(48),
+                                ),
+                                child: Icon(Icons.error_outline)),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Text(Constants.MyAvoutMe,
+                                style: TextStyle(fontSize: 17))
                           ],
                         ),
                       ),

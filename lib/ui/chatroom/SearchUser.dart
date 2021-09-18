@@ -1,15 +1,15 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/DataBaseMethod.dart';
 import 'package:letschat/ui/chatscreen/ChatScreen.dart';
+import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/FirestoreProvider.dart';
 
-class SearchUserList extends StatelessWidget {
+class SearchUser extends StatelessWidget {
   String name, number, image, token;
   String chatRoomId;
 
-  SearchUserList({this.name, this.number, this.image, this.token});
+  SearchUser({this.name, this.number, this.image, this.token});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class SearchUserList extends StatelessWidget {
           var user1 = parts[0].trim();
           var user2 = parts.sublist(1).join(':').trim();
 
-          List<String> userToken = new List();
+          List<String> userToken = [];
           if (user1 != Constants.MyName) {
             userToken = [token, Constants.Token];
           } else {
@@ -45,38 +45,38 @@ class SearchUserList extends StatelessWidget {
                   builder: (context) => ChatRoom(chatRoomId, name)));
         },
         child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
-                  child: Image.network(
-                    image,
-                    width: 45.0,
-                    height: 45.0,
-                    fit: BoxFit.fill,
-                  ),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100.0),
+                child: Image.network(
+                  image,
+                  width: 45.0,
+                  height: 45.0,
+                  fit: BoxFit.fill,
                 ),
-                SizedBox(
-                  width: 15,
-                ),
-                Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      width: MediaQuery.of(context).size.width - 110,
-                      decoration: new BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(width: 1.0, color: Colors.grey),
-                        ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    width: MediaQuery.of(context).size.width - 110,
+                    decoration: new BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(width: 1.0, color: Colors.grey),
                       ),
-                      child: Text(name, style: TextStyle(fontSize: 17)),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                    child: Text(name, style: TextStyle(fontSize: 17)),
+                  ),
+                ],
+              ),
+            ],
           ),
+        ),
       ),
     );
   }
