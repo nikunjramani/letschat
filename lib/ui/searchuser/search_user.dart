@@ -1,9 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/ui/chatscreen/ChatScreen.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
+import 'package:letschat/ui/chatscreen/chat_screen.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/firestore_provider.dart';
 
 class SearchUser extends StatelessWidget {
   String name, number, image, token;
@@ -42,7 +42,7 @@ class SearchUser extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ChatRoom(chatRoomId, name)));
+                  builder: (context) => ChatScreen(chatRoomId, name)));
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),

@@ -1,5 +1,3 @@
-
-
 class Contacts {
   String displayName, number;
 

@@ -1,9 +1,10 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/utils/ValidationUtils.dart';
-import 'package:letschat/utils/widget.dart';
+import 'package:letschat/utils/common_widgets.dart';
+import 'package:letschat/utils/validation_utils.dart';
 
-import 'Otp.dart';
+import 'otp.dart';
+
 
 class SignIn extends StatefulWidget {
   @override
@@ -34,7 +35,7 @@ class _SignInState extends State<SignIn> {
               ),
             ),
             Container(
-              decoration: ContainerDecoration(),
+              decoration: CommonWidgets.ContainerDecoration(),
               margin: EdgeInsets.only(top: 40, right: 10, left: 10),
               padding: EdgeInsets.all(4),
               child: CountryCodePicker(
@@ -50,29 +51,31 @@ class _SignInState extends State<SignIn> {
             Container(
               margin: EdgeInsets.only(top: 10, right: 10, left: 10),
               child: TextFormField(
-                decoration: TextFieldDecorationLogin("Phone Number"),
+                decoration: CommonWidgets.TextFieldDecorationLogin("Phone Number"),
                 maxLength: 10,
                 keyboardType: TextInputType.number,
                 controller: _controller,
                 validator: ValidationUtils.validateMobile,
               ),
             )
+
           ]),
+
           Container(
             margin: EdgeInsets.all(10),
             width: double.infinity,
-            child: TextButton(
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              ),
-              onPressed: () {
+            child: GestureDetector(
+              // style: ButtonStyle(
+              //   foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              // ),
+              onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
                         OTPScreen(countryCode + _controller.text)));
               },
               child: Text(
                 'Next',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.black),
               ),
             ),
           )

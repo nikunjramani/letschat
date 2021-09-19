@@ -4,27 +4,43 @@ import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
-import 'package:letschat/ui/chatroom/ChatRoomTile.dart';
-import 'package:letschat/ui/chatroom/SearchUserList.dart';
-import 'package:letschat/ui/contact/ViewContact.dart';
-import 'package:letschat/ui/profile/Profile.dart';
+import 'package:letschat/ui/chatroom/bloc/bloc.dart';
+import 'package:letschat/ui/chatroom/chat_room_tile.dart';
+import 'package:letschat/ui/contact/view_contact.dart';
+import 'package:letschat/ui/login/login_page.dart';
+import 'package:letschat/ui/profile/profile.dart';
+import 'package:letschat/ui/searchuser/search_user_list.dart';
 import 'package:letschat/ui/signin/SignIn.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
-import 'package:letschat/utils/NotificationUtils.dart';
-import 'package:letschat/utils/PermissionHandler.dart';
-import 'package:letschat/utils/PreferenceUtils.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/firestore_provider.dart';
+import 'package:letschat/utils/notification_utils.dart';
+import 'package:letschat/utils/permission_handler.dart';
+import 'package:letschat/utils/preference_utils.dart';
 
-import '../chatscreen/ChatScreen.dart';
+import '../chatscreen/chat_screen.dart';
 
-class Home extends StatefulWidget {
+class ChatRoom extends StatelessWidget {
+  const ChatRoom({Key key}) : super(key: key);
+
   @override
-  _HomeState createState() => _HomeState();
+  Widget build(BuildContext context) {
+    return BlocProvider<ChatRoomBloc>(
+        create: (context) => ChatRoomBloc(name: Constants.MyName),
+        child: Scaffold(
+          body: ChatRoomWidget(),
+        ));
+  }
 }
 
-class _HomeState extends State<Home> {
+class ChatRoomWidget extends StatefulWidget {
+  @override
+  _ChatRoomState createState() => _ChatRoomState();
+}
+
+class _ChatRoomState extends State<ChatRoomWidget> {
   SearchBar searchBar;
   PermissionHandler permissionHandler = new PermissionHandler();
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
@@ -34,16 +50,18 @@ class _HomeState extends State<Home> {
   FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  ChatRoomBloc _chatRoomBloc;
 
-  Widget chatRoomList() {
+  Widget chatRoomList(Stream chatRoom) {
     return StreamBuilder(
-        stream: chatRoomStream,
+        stream: chatRoom,
         builder: (context, snapshop) {
           return snapshop.hasData
               ? ListView.builder(
                   itemCount: snapshop.data.documents.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
+                    print(snapshop.data.documents[index].get("chatroomId"));
                     return ChatRoomTile(
                         snapshop.data.documents[index]
                             .get("chatroomId")
@@ -111,71 +129,80 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: appbarBuild(),
-        key: _scaffoldKey,
-        body: Container(
-          child: Column(
-            children: [chatRoomList()],
+    return BlocBuilder<ChatRoomBloc, ChatRoomState>(builder: (context, state) {
+        return Scaffold(
+          appBar: appbarBuild(),
+          key: _scaffoldKey,
+          body: Container(child: getViewAsPerState(state)),
+          floatingActionButton: Builder(
+            builder: (context) => FabCircularMenu(
+              key: fabKey,
+              // Cannot be `Alignment.center`
+              alignment: Alignment.bottomRight,
+              ringColor: Colors.white.withAlpha(25),
+              ringDiameter: 500.0,
+              ringWidth: 150.0,
+              fabSize: 64.0,
+              fabElevation: 8.0,
+              fabIconBorder: CircleBorder(),
+              fabColor: Colors.white,
+              fabOpenIcon: Icon(Icons.menu, color: primaryColor),
+              fabCloseIcon: Icon(Icons.close, color: primaryColor),
+              fabMargin: const EdgeInsets.all(16.0),
+              animationDuration: const Duration(milliseconds: 800),
+              animationCurve: Curves.easeInOutCirc,
+              onDisplayChange: (isOpen) {},
+              children: <Widget>[
+                RawMaterialButton(
+                  onPressed: signOut,
+                  shape: CircleBorder(),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Icon(Icons.logout, color: Colors.lightBlueAccent),
+                ),
+                RawMaterialButton(
+                  onPressed: () {
+                    fabKey.currentState.close();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => new Profile()));
+                  },
+                  shape: CircleBorder(),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Icon(Icons.person, color: Colors.lightBlueAccent),
+                ),
+                RawMaterialButton(
+                  onPressed: () {
+                    fabKey.currentState.close();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ViewContact()));
+                  },
+                  shape: CircleBorder(),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Icon(Icons.chat, color: Colors.lightBlueAccent),
+                )
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: Builder(
-          builder: (context) => FabCircularMenu(
-            key: fabKey,
-            // Cannot be `Alignment.center`
-            alignment: Alignment.bottomRight,
-            ringColor: Colors.white.withAlpha(25),
-            ringDiameter: 500.0,
-            ringWidth: 150.0,
-            fabSize: 64.0,
-            fabElevation: 8.0,
-            fabIconBorder: CircleBorder(),
-            fabColor: Colors.white,
-            fabOpenIcon: Icon(Icons.menu, color: primaryColor),
-            fabCloseIcon: Icon(Icons.close, color: primaryColor),
-            fabMargin: const EdgeInsets.all(16.0),
-            animationDuration: const Duration(milliseconds: 800),
-            animationCurve: Curves.easeInOutCirc,
-            onDisplayChange: (isOpen) {},
-            children: <Widget>[
-              RawMaterialButton(
-                onPressed: signOut,
-                shape: CircleBorder(),
-                padding: const EdgeInsets.all(24.0),
-                child: Icon(Icons.logout, color: Colors.lightBlueAccent),
-              ),
-              RawMaterialButton(
-                onPressed: () {
-                  fabKey.currentState.close();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => new Profile()));
-                },
-                shape: CircleBorder(),
-                padding: const EdgeInsets.all(24.0),
-                child: Icon(Icons.person, color: Colors.lightBlueAccent),
-              ),
-              RawMaterialButton(
-                onPressed: () {
-                  fabKey.currentState.close();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ViewContact()));
-                },
-                shape: CircleBorder(),
-                padding: const EdgeInsets.all(24.0),
-                child: Icon(Icons.chat, color: Colors.lightBlueAccent),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+        );
+      });
+  }
+
+  getViewAsPerState(ChatRoomState state) {
+    if (state is ChatRoomFetchCompleted) {
+      print(state.getStream());
+      return chatRoomList(state.getStream());
+    } else if (state is LoadingState) {
+      return LoadingIndicator();
+    } else {
+      return LoadingIndicator();
+    }
   }
 
   @override
   void initState() {
     // TODO: implement initState
+    _chatRoomBloc = BlocProvider.of<ChatRoomBloc>(context);
+
+
     super.initState();
     getUserInfo();
     initNotification();
@@ -210,12 +237,14 @@ class _HomeState extends State<Home> {
         print(token);
       });
     });
+
   }
 
   getData() async {
     await DataBaseMethods.getChatRooms(Constants.MyName).then((value) {
       setState(() {
         chatRoomStream = value;
+        print(chatRoomStream);
       });
     });
   }
@@ -231,7 +260,7 @@ class _HomeState extends State<Home> {
         await PreferenceUtils.getString(Constants.sharedPreferenceUserImage);
     Constants.MyAvoutMe =
         await PreferenceUtils.getString(Constants.sharedPreferenceUserAbout);
-    getData();
+    _chatRoomBloc.add(ChatRoomFetch(name:Constants.MyName));
   }
 
   Future<void> initNotification() async {
@@ -261,8 +290,10 @@ class _HomeState extends State<Home> {
       var chatId = parts[0].trim();
       var username = parts.sublist(1).join(':').trim();
 
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChatRoom(chatId, username)));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(chatId, username)));
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/ui/chatroom/SearchUser.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
+import 'package:letschat/ui/searchuser/search_user.dart';
+import 'package:letschat/utils/firestore_provider.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
   QuerySnapshot userList;

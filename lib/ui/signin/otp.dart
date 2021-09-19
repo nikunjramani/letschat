@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/ui/signin/ProfileInfo.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/PreferenceUtils.dart';
+import 'package:letschat/ui/profile/profile_info.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/preference_utils.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
-import '../chatroom/ChatRoom.dart';
+import '../chatroom/chat_room.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -80,7 +80,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     duration: const Duration(seconds: 1),
                     action: SnackBarAction(
                       label: 'invalid OTP',
-                      onPressed: () { },
+                      onPressed: () {},
                     ),
                   ));
                 }
@@ -118,7 +118,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       Constants.sharedPreferenceUserLogInKey, true);
                   Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => Home()),
+                      MaterialPageRoute(builder: (context) => ChatRoom()),
                       (route) => false);
                 } else {
                   Navigator.pushAndRemoveUntil(

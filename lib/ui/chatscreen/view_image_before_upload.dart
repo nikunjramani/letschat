@@ -6,9 +6,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:letschat/ui/chatscreen/ChatScreen.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
+import 'package:letschat/ui/chatscreen/chat_screen.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/firestore_provider.dart';
 
 class ViewImageBeforeUpload extends StatefulWidget {
   File _file;
@@ -57,7 +57,7 @@ class _ViewImageBeforeUploadState extends State<ViewImageBeforeUpload> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        ChatRoom(widget._chatRoomId, widget._username)));
+                        ChatScreen(widget._chatRoomId, widget._username)));
           }
         },
         child: Icon(

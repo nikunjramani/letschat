@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/ui/chatscreen/ChatScreen.dart';
+import 'package:letschat/ui/chatscreen/chat_screen.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final String username, chatRoom;
@@ -14,7 +14,7 @@ class ChatRoomTile extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatRoom(chatRoom, username)));
+                builder: (context) => ChatScreen(chatRoom, username)));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),

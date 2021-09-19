@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
-import 'package:letschat/utils/Constants.dart';
+import 'package:letschat/utils/constants.dart';
 
 class NotificationUtils {
   static Future sendAndRetrieveMessage(String title, String message,

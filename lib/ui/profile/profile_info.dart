@@ -3,11 +3,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
-import 'package:letschat/utils/PreferenceUtils.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/firestore_provider.dart';
+import 'package:letschat/utils/preference_utils.dart';
 
-import '../chatroom/ChatRoom.dart';
+import '../chatroom/chat_room.dart';
 
 class ProfileInfo extends StatefulWidget {
   @override
@@ -59,7 +59,8 @@ class _ProfileInfoState extends State<ProfileInfo> {
         await FirebaseMessaging().getToken());
     PreferenceUtils.setBoolean(Constants.sharedPreferenceUserLogInKey, true);
     DataBaseMethods.uploadUserInfo(map);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ChatRoom()));
   }
 
   @override
@@ -105,7 +106,8 @@ class _ProfileInfoState extends State<ProfileInfo> {
                     style: TextStyle(fontSize: 20.0),
                   ),
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.blue),
                   ),
                 )
               ],
@@ -124,8 +126,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
         .child("UserProfileImage")
         .child(FirebaseAuth.instance.currentUser.uid + "_profile");
     UploadTask uploadTask = reference.putFile(pickedFile);
-    String location =
-        await uploadTask.then((res) => res.ref.getDownloadURL());
+    String location = await uploadTask.then((res) => res.ref.getDownloadURL());
 
     //returns the download url
     setState(() {

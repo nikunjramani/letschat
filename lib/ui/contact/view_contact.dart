@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/model/Contacts.dart';
-import 'package:letschat/ui/chatroom/SearchUser.dart';
-import 'package:letschat/ui/chatroom/SearchUserList.dart';
-import 'package:letschat/utils/Constants.dart';
-import 'package:letschat/utils/FirestoreProvider.dart';
-import 'package:letschat/utils/PermissionHandler.dart';
+import 'package:letschat/model/contacts.dart';
+import 'package:letschat/ui/searchuser/search_user.dart';
+import 'package:letschat/ui/searchuser/search_user_list.dart';
+import 'package:letschat/utils/constants.dart';
+import 'package:letschat/utils/firestore_provider.dart';
+import 'package:letschat/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ViewContact extends StatefulWidget {
@@ -142,8 +142,7 @@ class _ViewContactState extends State<ViewContact> {
           if (num1.substring(0, 1) != "+") {
             num1 = "+91" + num1;
           }
-          var userContact = Contacts(contact.displayName, num1);
-          contactList.add(userContact);
+          contactList.add(new Contacts(contact.displayName, num1));
         });
       }
     });
