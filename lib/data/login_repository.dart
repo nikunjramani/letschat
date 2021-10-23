@@ -1,9 +1,9 @@
 import "package:firebase_auth/firebase_auth.dart";
 
-class UserRepository {
+class LoginRepository {
    FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  UserRepository({FirebaseAuth firebaseAuth})
+   LoginRepository({FirebaseAuth firebaseAuth})
       : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   Future<void> sendOtp(

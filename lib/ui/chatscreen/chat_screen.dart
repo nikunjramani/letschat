@@ -80,7 +80,7 @@ class _ChatScreenState extends State<ChatScreenWidget> {
             Expanded(
               child: BlocBuilder<ChatScreenBloc, ChatScreenState>(
                   builder: (context, state) {
-                if (state is FetchCompletedState) {
+                if (state is ChatScreenFetchCompletedState) {
                   return _chatMessageList(state.getStream());
                 } else if (state is LoadingState) {
                   return LoadingIndicator();
@@ -144,7 +144,7 @@ class _ChatScreenState extends State<ChatScreenWidget> {
     // isLoading=false;
     // getChat();
     _chatScreenBloc = context.read<ChatScreenBloc>();
-    _chatScreenBloc.add(ChatScreenFetch(widget.ChatRoomId));
+    _chatScreenBloc.add(ChatScreenFetchEvent(widget.ChatRoomId));
   }
 
   Widget AppbarBuild() {
@@ -464,7 +464,11 @@ class _ChatScreenState extends State<ChatScreenWidget> {
       );
     } else {
       return GestureDetector(
-        onTap: () => sendMessage("message", messageController.text),
+        onTap: () => {
+          // sendMessage("message", messageController.text),
+        _chatScreenBloc.add(ChatScreenSendMessageEvent(widget.ChatRoomId,messageController.text,"message",Constants.MyName))
+
+      },
         child: Container(
           height: 50,
           width: 50,

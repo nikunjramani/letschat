@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:letschat/data/user_repository.dart';
+import 'package:letschat/data/login_repository.dart';
 
 import './bloc.dart';
 
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
-  UserRepository userRepository;
+  LoginRepository userRepository;
 
   AuthenticationBloc(this.userRepository) : super(InitialAuthenticationState());
 

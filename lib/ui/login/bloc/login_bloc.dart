@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/data/user_repository.dart';
+import 'package:letschat/data/login_repository.dart';
 
 import 'bloc.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final UserRepository _userRepository;
+  final LoginRepository _userRepository;
   StreamSubscription subscription;
 
   String verID = "";
 
-  LoginBloc({@required UserRepository userRepository})
+  LoginBloc({@required LoginRepository userRepository})
       : assert(userRepository != null),
         _userRepository = userRepository,
         super(null);

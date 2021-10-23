@@ -7,14 +7,14 @@ import 'package:letschat/ui/splash/splash_page.dart';
 import 'authenticate/authentication_bloc.dart';
 import 'authenticate/authentication_event.dart';
 import 'authenticate/authentication_state.dart';
-import 'data/user_repository.dart';
+import 'data/login_repository.dart';
 import 'simple_bloc_observer.dart';
 import 'ui/login/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  UserRepository userRepository = UserRepository();
+  LoginRepository userRepository = LoginRepository();
   Bloc.observer = SimpleBlocObserver();
   runApp(BlocProvider(
     create: (context) => AuthenticationBloc(userRepository)..add(AppStarted()),
@@ -23,9 +23,9 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  final UserRepository _userRepository;
+  final LoginRepository _userRepository;
 
-  MyApp({Key key, @required UserRepository userRepository})
+  MyApp({Key key, @required LoginRepository userRepository})
       : assert(userRepository != null),
         _userRepository = userRepository,
         super(key: key);
@@ -35,7 +35,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  UserRepository get userRepository => widget._userRepository;
+  LoginRepository get userRepository => widget._userRepository;
 
   @override
   Widget build(BuildContext context) {

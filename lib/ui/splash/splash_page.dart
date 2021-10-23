@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../res.dart';
+import '../../resources.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -21,7 +21,7 @@ class _SplashPageState extends State<SplashPage> {
               Padding(
                   padding: EdgeInsets.only(bottom: 30.0),
                   child: Image.asset(
-                    Res.firebase,
+                    Resources.firebase,
                     fit: BoxFit.scaleDown,
                   ))
             ],
@@ -30,7 +30,7 @@ class _SplashPageState extends State<SplashPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Image.asset(
-                Res.firebase,
+                Resources.firebase,
                 width: 250,
                 height: 250,
               ),

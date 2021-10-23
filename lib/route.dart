@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:letschat/data/user_repository.dart';
+import 'package:letschat/data/login_repository.dart';
 import 'package:letschat/ui/chatroom/chat_room.dart';
 import 'package:letschat/ui/login/login_page.dart';
 import 'package:letschat/ui/splash/splash_page.dart';
@@ -12,7 +12,7 @@ const String USER_DETAIL = "/user_detail";
 
 class Router {
   static final userRepository =
-      UserRepository(firebaseAuth: FirebaseAuth.instance);
+      LoginRepository(firebaseAuth: FirebaseAuth.instance);
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {

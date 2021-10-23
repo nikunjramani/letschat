@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:letschat/authenticate/bloc.dart';
-import 'package:letschat/data/user_repository.dart';
-import 'package:letschat/res.dart';
+import 'package:letschat/data/login_repository.dart';
+import 'package:letschat/resources.dart';
 import 'package:letschat/ui/login/bloc/bloc.dart';
 import 'package:letschat/ui/login/bloc/login_bloc.dart';
 import 'package:letschat/utils/common_widgets.dart';
@@ -11,7 +11,7 @@ import 'package:pinput/pin_put/pin_put.dart';
 
 
 class LoginPage extends StatelessWidget {
-  final UserRepository userRepository;
+  final LoginRepository userRepository;
 
   LoginPage({Key key, @required this.userRepository})
       : assert(userRepository != null),
@@ -134,7 +134,7 @@ class Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
-              Res.firebase,
+              Resources.firebase,
               height: 100,
               width: 100,
             ),

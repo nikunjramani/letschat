@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 @immutable
 abstract class ChatScreenState extends Equatable {}
 
-class FetchCompletedState extends ChatScreenState {
+class ChatScreenFetchCompletedState extends ChatScreenState {
   Stream<dynamic> _stream;
 
-  FetchCompletedState(this._stream);
+  ChatScreenFetchCompletedState(this._stream);
 
   Stream getStream() {
     return _stream;
@@ -17,6 +17,15 @@ class FetchCompletedState extends ChatScreenState {
 }
 
 class LoadingState extends ChatScreenState {
+  @override
+  List<Object> get props => [];
+}
+
+class ChatScreenSendMessageState extends ChatScreenState {
+  bool isSuccess;
+
+  ChatScreenSendMessageState(this.isSuccess);
+
   @override
   List<Object> get props => [];
 }

@@ -21,4 +21,18 @@ class ChatScreenRepository {
       print(e.toString());
     });
   }
+  static getUserToken(String token) async {
+    var querySnap = await FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .where("userToken", arrayContains: token)
+        .get();
+    List userToken =
+    querySnap.docs.map((snap) => snap.get("userToken")).toList();
+
+    if (userToken[0][0] == token) {
+      return userToken[0][1];
+    } else {
+      return userToken[0][0];
+    }
+  }
 }

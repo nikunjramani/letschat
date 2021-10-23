@@ -5,15 +5,22 @@ class ChatScreenEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class ChatScreenFetch extends ChatScreenEvent {
+class ChatScreenFetchEvent extends ChatScreenEvent {
   String chatRoomId;
 
-  ChatScreenFetch(this.chatRoomId);
+  ChatScreenFetchEvent(this.chatRoomId);
 }
 
-class ChatScreenSendMessage extends ChatScreenEvent {
+class ChatScreenSendMessageEvent extends ChatScreenEvent {
+  String chatRoomId,message,type,sendBy;
+
+  ChatScreenSendMessageEvent(
+      this.chatRoomId, this.message, this.type, this.sendBy);
+}
+
+class ChatScreenSendNotificationEvent extends ChatScreenEvent {
   String chatRoomId;
   Map<String, String> messageMap;
 
-  ChatScreenSendMessage(this.chatRoomId, this.messageMap);
+  ChatScreenSendNotificationEvent(this.chatRoomId, this.messageMap);
 }
